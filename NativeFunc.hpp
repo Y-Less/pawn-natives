@@ -4,7 +4,7 @@
 #include <list>
 
 #include "NativeImport.hpp"
-#include "NativeCast.hpp"
+#include "Internal/NativeCast.hpp"
 
 #define PLUGIN_NATIVES_HAS_FUNC
 
@@ -172,7 +172,7 @@ namespace plugin_natives
 #define NATIVE_HOOK_PARAMETERS A a
 #define NATIVE_HOOK_CALLING    a
 #define NATIVE_HOOK_NUMBER     1
-#include "NativeFuncImpl.hpp"
+#include "Internal/NativeFuncImpl.hpp"
 #undef NATIVE_HOOK_NUMBER
 #undef NATIVE_HOOK_CALLING
 #undef NATIVE_HOOK_PARAMETERS
@@ -186,7 +186,7 @@ namespace plugin_natives
 #define NATIVE_HOOK_PARAMETERS A a, B b
 #define NATIVE_HOOK_CALLING    a, b
 #define NATIVE_HOOK_NUMBER     2
-#include "NativeFuncImpl.hpp"
+#include "Internal/NativeFuncImpl.hpp"
 #undef NATIVE_HOOK_NUMBER
 #undef NATIVE_HOOK_CALLING
 #undef NATIVE_HOOK_PARAMETERS
@@ -200,7 +200,7 @@ namespace plugin_natives
 #define NATIVE_HOOK_PARAMETERS A a, B b, C c
 #define NATIVE_HOOK_CALLING    a, b, c
 #define NATIVE_HOOK_NUMBER     3
-#include "NativeFuncImpl.hpp"
+#include "Internal/NativeFuncImpl.hpp"
 #undef NATIVE_HOOK_NUMBER
 #undef NATIVE_HOOK_CALLING
 #undef NATIVE_HOOK_PARAMETERS
@@ -214,7 +214,7 @@ namespace plugin_natives
 #define NATIVE_HOOK_PARAMETERS A a, B b, C c, D d
 #define NATIVE_HOOK_CALLING    a, b, c, d
 #define NATIVE_HOOK_NUMBER     4
-#include "NativeFuncImpl.hpp"
+#include "Internal/NativeFuncImpl.hpp"
 #undef NATIVE_HOOK_NUMBER
 #undef NATIVE_HOOK_CALLING
 #undef NATIVE_HOOK_PARAMETERS
@@ -228,7 +228,7 @@ namespace plugin_natives
 #define NATIVE_HOOK_PARAMETERS A a, B b, C c, D d, E e
 #define NATIVE_HOOK_CALLING    a, b, c, d, e
 #define NATIVE_HOOK_NUMBER     5
-#include "NativeFuncImpl.hpp"
+#include "Internal/NativeFuncImpl.hpp"
 #undef NATIVE_HOOK_NUMBER
 #undef NATIVE_HOOK_CALLING
 #undef NATIVE_HOOK_PARAMETERS
@@ -242,7 +242,7 @@ namespace plugin_natives
 #define NATIVE_HOOK_PARAMETERS A a, B b, C c, D d, E e, F f
 #define NATIVE_HOOK_CALLING    a, b, c, d, e, f
 #define NATIVE_HOOK_NUMBER     6
-#include "NativeFuncImpl.hpp"
+#include "Internal/NativeFuncImpl.hpp"
 #undef NATIVE_HOOK_NUMBER
 #undef NATIVE_HOOK_CALLING
 #undef NATIVE_HOOK_PARAMETERS
@@ -256,7 +256,7 @@ namespace plugin_natives
 #define NATIVE_HOOK_PARAMETERS A a, B b, C c, D d, E e, F f, G g
 #define NATIVE_HOOK_CALLING    a, b, c, d, e, f, g
 #define NATIVE_HOOK_NUMBER     7
-#include "NativeFuncImpl.hpp"
+#include "Internal/NativeFuncImpl.hpp"
 #undef NATIVE_HOOK_NUMBER
 #undef NATIVE_HOOK_CALLING
 #undef NATIVE_HOOK_PARAMETERS
@@ -270,7 +270,7 @@ namespace plugin_natives
 #define NATIVE_HOOK_PARAMETERS A a, B b, C c, D d, E e, F f, G g, H h
 #define NATIVE_HOOK_CALLING    a, b, c, d, e, f, g, h
 #define NATIVE_HOOK_NUMBER     8
-#include "NativeFuncImpl.hpp"
+#include "Internal/NativeFuncImpl.hpp"
 #undef NATIVE_HOOK_NUMBER
 #undef NATIVE_HOOK_CALLING
 #undef NATIVE_HOOK_PARAMETERS
@@ -284,7 +284,7 @@ namespace plugin_natives
 #define NATIVE_HOOK_PARAMETERS A a, B b, C c, D d, E e, F f, G g, H h, I i
 #define NATIVE_HOOK_CALLING    a, b, c, d, e, f, g, h, i
 #define NATIVE_HOOK_NUMBER     9
-#include "NativeFuncImpl.hpp"
+#include "Internal/NativeFuncImpl.hpp"
 #undef NATIVE_HOOK_NUMBER
 #undef NATIVE_HOOK_CALLING
 #undef NATIVE_HOOK_PARAMETERS
@@ -298,7 +298,7 @@ namespace plugin_natives
 #define NATIVE_HOOK_PARAMETERS A a, B b, C c, D d, E e, F f, G g, H h, I i, J j
 #define NATIVE_HOOK_CALLING    a, b, c, d, e, f, g, h, i, j
 #define NATIVE_HOOK_NUMBER     10
-#include "NativeFuncImpl.hpp"
+#include "Internal/NativeFuncImpl.hpp"
 #undef NATIVE_HOOK_NUMBER
 #undef NATIVE_HOOK_CALLING
 #undef NATIVE_HOOK_PARAMETERS
@@ -312,7 +312,7 @@ namespace plugin_natives
 #define NATIVE_HOOK_PARAMETERS A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k
 #define NATIVE_HOOK_CALLING    a, b, c, d, e, f, g, h, i, j, k
 #define NATIVE_HOOK_NUMBER     11
-#include "NativeFuncImpl.hpp"
+#include "Internal/NativeFuncImpl.hpp"
 #undef NATIVE_HOOK_NUMBER
 #undef NATIVE_HOOK_CALLING
 #undef NATIVE_HOOK_PARAMETERS
@@ -326,7 +326,7 @@ namespace plugin_natives
 #define NATIVE_HOOK_PARAMETERS A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k, L l
 #define NATIVE_HOOK_CALLING    a, b, c, d, e, f, g, h, i, j, k, l
 #define NATIVE_HOOK_NUMBER     12
-#include "NativeFuncImpl.hpp"
+#include "Internal/NativeFuncImpl.hpp"
 #undef NATIVE_HOOK_NUMBER
 #undef NATIVE_HOOK_CALLING
 #undef NATIVE_HOOK_PARAMETERS
@@ -340,7 +340,7 @@ namespace plugin_natives
 #define NATIVE_HOOK_PARAMETERS A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k, L l, M m
 #define NATIVE_HOOK_CALLING    a, b, c, d, e, f, g, h, i, j, k, l, m
 #define NATIVE_HOOK_NUMBER     13
-#include "NativeFuncImpl.hpp"
+#include "Internal/NativeFuncImpl.hpp"
 #undef NATIVE_HOOK_NUMBER
 #undef NATIVE_HOOK_CALLING
 #undef NATIVE_HOOK_PARAMETERS
@@ -354,7 +354,7 @@ namespace plugin_natives
 #define NATIVE_HOOK_PARAMETERS A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k, L l, M m, N n
 #define NATIVE_HOOK_CALLING    a, b, c, d, e, f, g, h, i, j, k, l, m, n
 #define NATIVE_HOOK_NUMBER     14
-#include "NativeFuncImpl.hpp"
+#include "Internal/NativeFuncImpl.hpp"
 #undef NATIVE_HOOK_NUMBER
 #undef NATIVE_HOOK_CALLING
 #undef NATIVE_HOOK_PARAMETERS
@@ -368,7 +368,7 @@ namespace plugin_natives
 #define NATIVE_HOOK_PARAMETERS A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k, L l, M m, N n, O o
 #define NATIVE_HOOK_CALLING    a, b, c, d, e, f, g, h, i, j, k, l, m, n, o
 #define NATIVE_HOOK_NUMBER     15
-#include "NativeFuncImpl.hpp"
+#include "Internal/NativeFuncImpl.hpp"
 #undef NATIVE_HOOK_NUMBER
 #undef NATIVE_HOOK_CALLING
 #undef NATIVE_HOOK_PARAMETERS
@@ -382,7 +382,7 @@ namespace plugin_natives
 #define NATIVE_HOOK_PARAMETERS A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k, L l, M m, N n, O o, P p
 #define NATIVE_HOOK_CALLING    a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p
 #define NATIVE_HOOK_NUMBER     16
-#include "NativeFuncImpl.hpp"
+#include "Internal/NativeFuncImpl.hpp"
 #undef NATIVE_HOOK_NUMBER
 #undef NATIVE_HOOK_CALLING
 #undef NATIVE_HOOK_PARAMETERS
