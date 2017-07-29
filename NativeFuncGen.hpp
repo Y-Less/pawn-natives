@@ -3,6 +3,25 @@
 #include <stdexcept>
 #include <plugin.h>
 
+#if defined __cplusplus
+	#define PLUGIN_NATIVE_EXTERN extern "C"
+#else
+	#define PLUGIN_NATIVE_EXTERN extern
+#endif
+
+#if defined _WIN32 || defined __CYGWIN__
+	#define PLUGIN_NATIVE_DLLEXPORT __declspec(dllexport)
+	#define PLUGIN_NATIVE_DLLIMPORT __declspec(dllimport)
+	#define PLUGIN_NATIVE_API __cdecl
+#elif defined __linux__ || defined __APPLE__
+	#define PLUGIN_NATIVE_DLLEXPORT __attribute__((visibility("default")))
+	#define PLUGIN_NATIVE_DLLIMPORT 
+	#define PLUGIN_NATIVE_API __attribute__((cdecl))
+#endif
+
+#define PLUGIN_NATIVE_EXPORT PLUGIN_NATIVE_EXTERN PLUGIN_NATIVE_API PLUGIN_NATIVE_DLLEXPORT
+#define PLUGIN_NATIVE_IMPORT PLUGIN_NATIVE_EXTERN PLUGIN_NATIVE_API PLUGIN_NATIVE_DLLIMPORT
+
 namespace plugin_natives
 {
 	template <typename T>
@@ -165,24 +184,18 @@ namespace plugin_natives
 #define SAMP_NATIVES_RETURN(params) SAMP_NATIVES_WITHOUT_PARAMS_##params
 #define SAMP_NATIVES_MAYBE_RETURN(params) SAMP_NATIVES_MAYBE_RETURN_##params
 
-// I don't know what the GCC/Clang equivalent to this is:
-//   
-//   __pragma(comment(linker, "/EXPORT:_"#func"=_NATIVE_"#func));
-//   
-// That code takes a function called `_NATIVE_SetPlayerPos` (say) and exports it
-// from the .dll as `_SetPlayerPos` (which is the `_cdecl` name mangling version
-// of `SetPlayerPos`).  This means that we can internally have `SetPlayerPos` as
-// an instance of a class with an `operator()` for calling, while providing an
-// external API that looks quite similar in the form of a function with the same
-// name that wraps the object.
-// 
-// I think that it might be possible by setting all the other versions as hidden
-// with `__attribute__((visibility("hidden")))` and the wrapper function with
-// exactly the same name as exported with `__attribute__((visibility("default")))`
-// AND weak (so as to not have the names conflict) with `__attribute__((weak))`.
-// This (I think) will make all internal code use the object, since that is the
-// strong name, but will export the identical weak name for others to call.
-#define PLUGIN_NATIVE(func,type) \
-	extern "C" _declspec(dllimport) SAMP_NATIVES_RETURN(type) _cdecl            \
-	    func(SAMP_NATIVES_PARAMETERS(type))
+// Import a native from another plugin.
+#define PLUGIN_IMPORT(nspace,func,type) \
+	PLUGIN_NATIVE_DLLIMPORT SAMP_NATIVES_RETURN(type)                           \
+	    NATIVE_##nspace##_##func SAMP_NATIVES_WITHOUT_RETURN_##type;            \
+	                                                                            \
+	namespace nspace                                                            \
+	{                                                                           \
+	    inline SAMP_NATIVES_RETURN(type)                                        \
+	        func(SAMP_NATIVES_PARAMETERS(type))                                 \
+	    {                                                                       \
+	        SAMP_NATIVES_MAYBE_RETURN(type)                                     \
+	            NATIVE_##nspace##_##func(SAMP_NATIVES_CALLING(type));           \
+	    }                                                                       \
+	}
 

@@ -602,55 +602,34 @@ namespace plugin_natives
 // The inheritance from `NativeHookBase` is protected, because we don't want
 // normal users getting in to that data.  However, we do want them to be able to
 // use the common `IsEnabled` method, so re-export it.
-#define HOOK_DECL(func,type) \
-	extern "C" SAMP_NATIVES_RETURN(type) _cdecl                                 \
-	    NATIVE_##func SAMP_NATIVES_WITHOUT_RETURN_##type ;                      \
+#define HOOK_DECL(nspace,func,type) \
+	PLUGIN_NATIVE_EXPORT SAMP_NATIVES_RETURN(type) _cdecl                       \
+	    NATIVE_##nspace##_##func SAMP_NATIVES_WITHOUT_RETURN_##type;            \
 	                                                                            \
-	namespace plugin_natives                                                    \
+	namespace nspace                                                            \
 	{                                                                           \
-	    extern class Native_##func : public NativeHook<type>                    \
+	    extern class Native_##nspace##_##func : public NativeHook<type>                    \
 	    {                                                                       \
 	    public:                                                                 \
-	        Native_##func() :                                                   \
+	        Native_##nspace##_##func() :                                                   \
 	            NativeHook<type>(#func, &sampgdk_##func, &Call) {}              \
 	                                                                            \
 	        using NativeHookBase::IsEnabled;                                    \
 	                                                                            \
 	    private:                                                                \
-	        friend SAMP_NATIVES_RETURN(type) _cdecl                             \
-	            ::NATIVE_##func SAMP_NATIVES_WITHOUT_RETURN_##type ;            \
+	        friend PLUGIN_NATIVE_EXPORT SAMP_NATIVES_RETURN(type)               \
+	            NATIVE_##nspace##_##func SAMP_NATIVES_WITHOUT_RETURN_##type;    \
 	                                                                            \
 	        static cell AMX_NATIVE_CALL                                         \
 	            Call(AMX * amx, cell * params)                                  \
 	        {                                                                   \
-	            return ::plugin_natives::func.CallDoOuter(amx, params);         \
+	            return nspace::func.CallDoOuter(amx, params);            \
 	        }                                                                   \
 	                                                                            \
 	        SAMP_NATIVES_RETURN(type)                                           \
 	            Do SAMP_NATIVES_WITHOUT_RETURN_##type const;                    \
 	    } func;                                                                 \
 	}
-
-#if 0
-
-// Example:
-
-// In you header:
-#undef SetPlayerPos
-HOOK_DECL(SetPlayerPos, bool(int playerid, float x, float y, float z));
-
-// In your code:
-HOOK_DEFN(SetPlayerPos, bool(int playerid, float x, float y, float z))
-{
-	// Implementation here...
-	gLastX[playerid] = x;
-	gLastY[playerid] = y;
-	// No need to worry about hooks for this function - they are removed while
-	// the hook is running.
-	return SetPlayerPos(playerid, x, y, z);
-}
-
-#endif
 
 // We can't pass exceptions to another module easily, so just don't...
 // 
@@ -668,15 +647,14 @@ HOOK_DEFN(SetPlayerPos, bool(int playerid, float x, float y, float z))
 //   {};
 //   
 // Which means nothing.
-#define HOOK_DEFN(func,type) \
-	extern "C" SAMP_NATIVES_RETURN(type) _cdecl                                 \
-	    NATIVE_##func(SAMP_NATIVES_PARAMETERS(type))                            \
+#define HOOK_DEFN(nspace,func,type) \
+	PLUGIN_NATIVE_EXPORT SAMP_NATIVES_RETURN(type)                              \
+	    NATIVE_##nspace##_##func(SAMP_NATIVES_PARAMETERS(type))                 \
 	{                                                                           \
-	    __pragma(comment(linker, "/EXPORT:_" #func "=_NATIVE_" #func));         \
 	    try                                                                     \
 	    {                                                                       \
 	        SAMP_NATIVES_MAYBE_RETURN(type)                                     \
-	            ::plugin_natives::func(SAMP_NATIVES_CALLING(type));             \
+	            nspace::func(SAMP_NATIVES_CALLING(type));                       \
 	    }                                                                       \
 	    catch (std::exception & e)                                              \
 	    {                                                                       \
@@ -689,16 +667,37 @@ HOOK_DEFN(SetPlayerPos, bool(int playerid, float x, float y, float z))
 	    {                                                                       \
 	        Log(LogLevel::ERROR, "Unknown exception in _" #func);               \
 	    }                                                                       \
-	    if (!::plugin_natives::func.Recursing())                                \
-	        ::plugin_natives::func.Recursing();                                 \
+	    if (!nspace::func.Recursing())                                          \
+	        nspace::func.Recursing();                                           \
 	    SAMP_NATIVES_MAYBE_RETURN(type) {};                                     \
 	}                                                                           \
 	                                                                            \
-	plugin_natives::Native_##func plugin_natives::func;                         \
+	nspace::Native_##nspace##_##func nspace::func;                              \
 	SAMP_NATIVES_RETURN(type)                                                   \
-	    plugin_natives::Native_##func::                                         \
+	    nspace::Native_##nspace##_##func::                                      \
 	    Do SAMP_NATIVES_WITHOUT_RETURN_##type const
 
 #define HOOK_DECLARE HOOK_DECL
 #define HOOK_DEFINE  HOOK_DEFN
+
+#if 0
+
+// Example:
+
+// In you header:
+#undef SetPlayerPos
+HOOK_DECL(fixes, SetPlayerPos, bool(int playerid, float x, float y, float z));
+
+// In your code:
+HOOK_DEFN(fixes, SetPlayerPos, bool(int playerid, float x, float y, float z))
+{
+	// Implementation here...
+	gLastX[playerid] = x;
+	gLastY[playerid] = y;
+	// No need to worry about hooks for this function - they are removed while
+	// the hook is running.
+	return SetPlayerPos(playerid, x, y, z);
+}
+
+#endif
 
