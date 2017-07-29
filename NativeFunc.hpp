@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <list>
 
-#include "NativeFuncGen.hpp"
+#include "NativeImport.hpp"
 #include "NativeCast.hpp"
 
 #define PLUGIN_NATIVES_HAS_FUNC

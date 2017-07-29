@@ -6,7 +6,7 @@
 #include <subhook/subhook.h>
 #include <sampgdk/interop.h>
 
-#include "NativeFuncGen.hpp"
+#include "NativeImport.hpp"
 #include "NativeCast.hpp"
 
 #define PLUGIN_NATIVES_HAS_HOOK
