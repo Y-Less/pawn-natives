@@ -19,8 +19,8 @@
 	#define PLUGIN_NATIVE_API __attribute__((cdecl))
 #endif
 
-#define PLUGIN_NATIVE_EXPORT PLUGIN_NATIVE_EXTERN PLUGIN_NATIVE_API PLUGIN_NATIVE_DLLEXPORT
-#define PLUGIN_NATIVE_IMPORT PLUGIN_NATIVE_EXTERN PLUGIN_NATIVE_API PLUGIN_NATIVE_DLLIMPORT
+#define PLUGIN_NATIVE_EXPORT PLUGIN_NATIVE_EXTERN PLUGIN_NATIVE_DLLEXPORT
+#define PLUGIN_NATIVE_IMPORT PLUGIN_NATIVE_EXTERN PLUGIN_NATIVE_DLLIMPORT
 
 #ifndef LOG_NATIVE_ERROR
 	#define LOG_NATIVE_ERROR(...) ((void)0)
@@ -199,7 +199,7 @@ namespace plugin_natives
 
 // Import a native from another plugin.
 #define PLUGIN_IMPORT(nspace,func,type) \
-	PLUGIN_NATIVE_DLLIMPORT SAMP_NATIVES_RETURN(type)                           \
+	PLUGIN_NATIVE_IMPORT SAMP_NATIVES_RETURN(type) PLUGIN_NATIVE_API            \
 	    NATIVE_##nspace##_##func SAMP_NATIVES_WITHOUT_RETURN_##type;            \
 	                                                                            \
 	namespace nspace                                                            \

@@ -603,27 +603,28 @@ namespace plugin_natives
 // normal users getting in to that data.  However, we do want them to be able to
 // use the common `IsEnabled` method, so re-export it.
 #define HOOK_DECL(nspace,func,type) \
-	PLUGIN_NATIVE_EXPORT SAMP_NATIVES_RETURN(type) _cdecl                       \
+	PLUGIN_NATIVE_EXPORT SAMP_NATIVES_RETURN(type) PLUGIN_NATIVE_API            \
 	    NATIVE_##nspace##_##func SAMP_NATIVES_WITHOUT_RETURN_##type;            \
 	                                                                            \
 	namespace nspace                                                            \
 	{                                                                           \
-	    extern class Native_##nspace##_##func : public NativeHook<type>                    \
+	    extern class Native_##nspace##_##func :                                 \
+	        public plugin_natives::NativeHook<type>                             \
 	    {                                                                       \
 	    public:                                                                 \
-	        Native_##nspace##_##func() :                                                   \
+	        Native_##nspace##_##func() :                                        \
 	            NativeHook<type>(#func, &sampgdk_##func, &Call) {}              \
 	                                                                            \
 	        using NativeHookBase::IsEnabled;                                    \
 	                                                                            \
 	    private:                                                                \
-	        friend PLUGIN_NATIVE_EXPORT SAMP_NATIVES_RETURN(type)               \
-	            NATIVE_##nspace##_##func SAMP_NATIVES_WITHOUT_RETURN_##type;    \
+	        friend PLUGIN_NATIVE_DLLEXPORT SAMP_NATIVES_RETURN(type) PLUGIN_NATIVE_API  \
+	            ::NATIVE_##nspace##_##func SAMP_NATIVES_WITHOUT_RETURN_##type;  \
 	                                                                            \
 	        static cell AMX_NATIVE_CALL                                         \
 	            Call(AMX * amx, cell * params)                                  \
 	        {                                                                   \
-	            return nspace::func.CallDoOuter(amx, params);            \
+	            return nspace::func.CallDoOuter(amx, params);                   \
 	        }                                                                   \
 	                                                                            \
 	        SAMP_NATIVES_RETURN(type)                                           \
@@ -648,7 +649,7 @@ namespace plugin_natives
 //   
 // Which means nothing.
 #define HOOK_DEFN(nspace,func,type) \
-	PLUGIN_NATIVE_EXPORT SAMP_NATIVES_RETURN(type)                              \
+	PLUGIN_NATIVE_EXPORT SAMP_NATIVES_RETURN(type) PLUGIN_NATIVE_API            \
 	    NATIVE_##nspace##_##func(SAMP_NATIVES_PARAMETERS(type))                 \
 	{                                                                           \
 	    try                                                                     \
