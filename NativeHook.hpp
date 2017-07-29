@@ -680,6 +680,8 @@ namespace plugin_natives
 #define HOOK_DECLARE HOOK_DECL
 #define HOOK_DEFINE  HOOK_DEFN
 
+#define PLUGIN_HOOK(nspace,func,type) HOOK_DECL(nspace,func,type);HOOK_DEFN(nspace,func,type)
+
 #if 0
 
 // Example:

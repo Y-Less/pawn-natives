@@ -426,23 +426,6 @@ namespace plugin_natives
 	    } func;                                                                 \
 	}
 
-#if 0
-
-// Example:
-
-// In your header:
-NATIVE_DECL(SetPlayerPosAndAngle, bool(int playerid, float x, float y, float z, float a));
-
-// In your code:
-NATIVE_DEFN(SetPlayerPosAndAngle, bool(int playerid, float x, float y, float z, float a))
-{
-	// Implementation here...
-	SetPlayerPos(playerid, x, y, z);
-	return SetPlayerFacingAngle(playerid, a);
-}
-
-#endif
-
 // We can't pass exceptions to another module easily, so just don't...
 // 
 // I quite like this:
@@ -489,4 +472,23 @@ NATIVE_DEFN(SetPlayerPosAndAngle, bool(int playerid, float x, float y, float z, 
 
 #define NATIVE_DECLARE NATIVE_DECL
 #define NATIVE_DEFINE  NATIVE_DEFN
+
+#define PLUGIN_NATIVE(nspace,func,type) NATIVE_DECL(nspace,func,type);NATIVE_DEFN(nspace,func,type)
+
+#if 0
+
+// Example:
+
+// In your header:
+NATIVE_DECL(SetPlayerPosAndAngle, bool(int playerid, float x, float y, float z, float a));
+
+// In your code:
+NATIVE_DEFN(SetPlayerPosAndAngle, bool(int playerid, float x, float y, float z, float a))
+{
+	// Implementation here...
+	SetPlayerPos(playerid, x, y, z);
+	return SetPlayerFacingAngle(playerid, a);
+}
+
+#endif
 
