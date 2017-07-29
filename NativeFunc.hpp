@@ -61,14 +61,14 @@ namespace plugin_natives
 					char
 						msg[1024];
 					sprintf(msg, "Exception in %s: \"%s\"", name_, e.what());
-					Log(LogLevel::ERROR, msg);
+					LOG_NATIVE_ERROR(msg);
 				}
 				catch (...)
 				{
 					char
 						msg[1024];
 					sprintf(msg, "Unknown exception in in %s", name_);
-					Log(LogLevel::ERROR, msg);
+					LOG_NATIVE_ERROR(msg);
 					params_ = 0;
 					amx_ = 0;
 					throw;
@@ -456,11 +456,11 @@ namespace plugin_natives
 	        char                                                                \
 	            msg[1024];                                                      \
 	        sprintf(msg, "Exception in _" #func ": \"%s\"", e.what());          \
-	        Log(LogLevel::ERROR, msg);                                          \
+	        LOG_NATIVE_ERROR(msg);                                              \
 	    }                                                                       \
 	    catch (...)                                                             \
 	    {                                                                       \
-	        Log(LogLevel::ERROR, "Unknown exception in _" #func);               \
+	        LOG_NATIVE_ERROR("Unknown exception in _" #func);                   \
 	    }                                                                       \
 	    SAMP_NATIVES_MAYBE_RETURN(type) {};                                     \
 	}                                                                           \

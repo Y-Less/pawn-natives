@@ -95,14 +95,14 @@ namespace plugin_natives
 					char
 						msg[1024];
 					sprintf(msg, "Exception in %s: \"%s\"", name_, e.what());
-					Log(LogLevel::ERROR, msg);
+					LOG_NATIVE_ERROR(msg);
 				}
 				catch (...)
 				{
 					char
 						msg[1024];
 					sprintf(msg, "Unknown exception in in %s", name_);
-					Log(LogLevel::ERROR, msg);
+					LOG_NATIVE_ERROR(msg);
 					recursing_ = false;
 					params_ = 0;
 					amx_ = 0;
@@ -661,11 +661,11 @@ namespace plugin_natives
 	        char                                                                \
 	            msg[1024];                                                      \
 	        sprintf(msg, "Exception in _" #func ": \"%s\"", e.what());          \
-	        Log(LogLevel::ERROR, msg);                                          \
+	        LOG_NATIVE_ERROR(msg);                                              \
 	    }                                                                       \
 	    catch (...)                                                             \
 	    {                                                                       \
-	        Log(LogLevel::ERROR, "Unknown exception in _" #func);               \
+	        LOG_NATIVE_ERROR("Unknown exception in _" #func);                   \
 	    }                                                                       \
 	    if (!nspace::func.Recursing())                                          \
 	        nspace::func.Recursing();                                           \

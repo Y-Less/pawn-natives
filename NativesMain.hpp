@@ -1,5 +1,7 @@
 #pragma once
 
+#include "NativeImport.hpp"
+
 namespace plugin_natives
 {
 #ifdef PLUGIN_NATIVES_HAS_FUNC
@@ -36,7 +38,7 @@ namespace plugin_natives
 				curNative[2] = { {0, 0}, {0, 0} };
 			for (NativeFuncBase * curFunc : *NativeFuncBase::all_)
 			{
-				Log(LogLevel::INFO, "Registering native %s", curFunc->name_);
+				LOG_NATIVE_INFO("Registering native %s", curFunc->name_);
 				curNative[0].name = curFunc->name_;
 				curNative[0].func = curFunc->native_;
 				ret = amx_Register(amx, curNative, -1);
@@ -56,12 +58,12 @@ namespace plugin_natives
 					curNative = sampgdk_FindNative(curFunc->name_);
 					if (curNative)
 					{
-						Log(LogLevel::INFO, "Hooking native %s: %p -> %p", curFunc->name_, (void *)curNative, (void *)curFunc->replacement_);
+						LOG_NATIVE_INFO("Hooking native %s: %p -> %p", curFunc->name_, (void *)curNative, (void *)curFunc->replacement_);
 						curFunc->hook_.Install((void *)curNative, (void *)curFunc->replacement_);
 					}
 					else
 					{
-						Log(LogLevel::INFO, "Hooking native %s (NOT FOUND)", curFunc->name_);
+						LOG_NATIVE_INFO("Hooking native %s (NOT FOUND)", curFunc->name_);
 					}
 				}
 			}

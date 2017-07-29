@@ -22,6 +22,19 @@
 #define PLUGIN_NATIVE_EXPORT PLUGIN_NATIVE_EXTERN PLUGIN_NATIVE_API PLUGIN_NATIVE_DLLEXPORT
 #define PLUGIN_NATIVE_IMPORT PLUGIN_NATIVE_EXTERN PLUGIN_NATIVE_API PLUGIN_NATIVE_DLLIMPORT
 
+#ifndef LOG_NATIVE_ERROR
+	#define LOG_NATIVE_ERROR(...) ((void)0)
+#endif
+#ifndef LOG_NATIVE_WARNING
+	#define LOG_NATIVE_WARNING(...) ((void)0)
+#endif
+#ifndef LOG_NATIVE_DEBUG
+	#define LOG_NATIVE_DEBUG(...) ((void)0)
+#endif
+#ifndef LOG_NATIVE_INFO
+	#define LOG_NATIVE_INFO(...) ((void)0)
+#endif
+
 namespace plugin_natives
 {
 	template <typename T>
