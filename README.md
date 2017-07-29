@@ -52,7 +52,7 @@ PLUGIN_NATIVE(Natives, IsValidDynamicCP, bool(int id))
 
 ## Macros
 
-# PLUGIN_NATIVE
+### PLUGIN_NATIVE
 
 This will declare a static native and register it.  If you want the function available to the rest of your code in other files, you need to perform declaration and definition separately - just like prototyping any other normal C function:
 
@@ -72,23 +72,23 @@ NATIVE_DEFN(Natives, IsValidDynamicCP, bool(int id))
 }
 ```
 
-# NATIVE_DECL
+### NATIVE_DECL
 
 See above.
 
-# NATIVE_DEFN
+### NATIVE_DEFN
 
 See above.
 
-# NATIVE_DECLARE
+### NATIVE_DECLARE
 
 Synonym for NATIVE_DECL.
 
-# NATIVE_DEFINE
+### NATIVE_DEFINE
 
 Synonym for NATIVE_DEFN.
 
-# PLUGIN_HOOK
+### PLUGIN_HOOK
 
 This is similar to `PLUGIN_NATIVE`, but hooks an existing native function instead of creating an entirely new one.  It again exports your new version for calling directly (note that this may bypass other hooks on the same function):
 
