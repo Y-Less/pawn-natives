@@ -6,12 +6,43 @@
 namespace pawn_natives
 {
 	template <typename T>
+	class ParamLookup
+	{
+	public:
+		static T Val(cell ref)
+		{
+			return (T)ref;
+		}
+
+		static T * Ptr(cell * ref)
+		{
+			return (T *)ref;
+		}
+	};
+
+	template <>
+	class ParamLookup<float>
+	{
+	public:
+		static float Val(cell ref)
+		{
+			return *(float *)ref;
+		}
+
+		static float * Ptr(cell * ref)
+		{
+			return (float *)ref;
+		}
+	};
+
+	template <typename T>
 	class ParamCast
 	{
 	public:
 		ParamCast(AMX * amx, cell * params, int idx)
+		:
+			value_(ParamLookup<T>::Val(params[idx]))
 		{
-			value_ = *(T *)&params[idx];
 		}
 
 		~ParamCast()
@@ -34,6 +65,8 @@ namespace pawn_natives
 	{
 	public:
 		ParamCast(AMX * amx, cell * params, int idx)
+		:
+			value_(ParamLookup<T>::Val(params[idx]))
 		{
 			// In theory, because `T` could contain `const`, we don't actually
 			// need specialisations for constant parameters.  The pointer would
@@ -43,7 +76,6 @@ namespace pawn_natives
 			// original.  If they REALLY REALLY want to modify the original
 			// parameter in AMX memory they will have to re-extract the pointer
 			// from `params`.
-			value_ = *(T *)&params[idx];
 		}
 
 		~ParamCast()
@@ -119,12 +151,17 @@ namespace pawn_natives
 	public:
 		ParamCast(AMX * amx, cell * params, int idx)
 		{
-			amx_GetAddr(amx, params[idx], (cell **)&value_);
+			cell *
+				src;
+			amx_GetAddr(amx, params[idx], &src);
+			value_ = ParamLookup<T>::Ptr(src);
 		}
 
 		~ParamCast()
 		{
 			// Some versions may need to write data back here, but not this one.
+			// This one doesn't because we are passing the direct pointer, which means any writes
+			// are done directly in to AMX memory.
 		}
 
 		operator T *()
@@ -134,6 +171,33 @@ namespace pawn_natives
 
 	private:
 		T *
+			value_;
+	};
+
+	template <typename T>
+	class ParamCast<T &>
+	{
+	public:
+		ParamCast(AMX * amx, cell * params, int idx)
+		:
+			value_(ParamLookup<T>::Ref(params[idx]))
+		{
+		}
+
+		~ParamCast()
+		{
+			// Some versions may need to write data back here, but not this one.
+			// This one doesn't because we are passing the direct pointer, which means any writes
+			// are done directly in to AMX memory.
+		}
+
+		operator T &()
+		{
+			return value_;
+		}
+
+	private:
+		T &
 			value_;
 	};
 
@@ -152,9 +216,9 @@ namespace pawn_natives
 			// parameter in AMX memory they will have to re-extract the pointer
 			// from `params`.
 			cell *
-				addr;
-			amx_GetAddr(amx, params[idx], &addr);
-			value_ = *(T *)&addr;
+				src;
+			amx_GetAddr(amx, params[idx], &src);
+			value_ = ParamLookup<T>::Ptr(src);
 		}
 
 		~ParamCast()
@@ -177,7 +241,7 @@ namespace pawn_natives
 	{
 	public:
 		ParamCast(AMX * amx, cell * params, int idx)
-		:
+			:
 			fake_('\0'),
 			len_((int)params[idx + 1])
 		{
@@ -220,10 +284,10 @@ namespace pawn_natives
 
 		cell *
 			addr_;
-		
+
 		char *
 			value_;
-		
+
 		char
 			fake_;
 	};
@@ -233,7 +297,7 @@ namespace pawn_natives
 	{
 	public:
 		ParamCast(AMX * amx, cell * params, int idx)
-		:
+			:
 			fake_('\0')
 		{
 			// Can't use `amx_StrParam` here, it allocates on the stack.  This
@@ -270,9 +334,101 @@ namespace pawn_natives
 	private:
 		char *
 			value_;
-		
+
 		char
 			fake_;
+	};
+
+	template <>
+	class ParamCast<std::string &>
+	{
+	public:
+		ParamCast(AMX * amx, cell * params, int idx)
+		:
+			len_((int)params[idx + 1])
+		{
+			// Can't use `amx_StrParam` here, it allocates on the stack.  This
+			// code wraps a lot of `sampgdk`, which fortunately is entirely
+			// const-correct so we don't need to worry about strings not being
+			// copied incorrectly.  We can also make the assumption that any
+			// string is immediately followed by its length when it is an
+			// output.
+			if (len_ < 0)
+				throw std::length_error("Invalid string length.");
+			if (len_)
+			{
+				amx_GetAddr(amx, params[idx], &addr_);
+				char *
+					src = (char *)alloca(len_);
+				amx_GetString(src, addr_, 0, len_);
+				value_ = src;
+			}
+			else
+				value_.clear();
+		}
+
+		~ParamCast()
+		{
+			// This is the only version that actually needs to write data back.
+			if (len_)
+				amx_SetString(addr_, value_.c_str(), 0, 0, len_);
+		}
+
+		operator std::string &()
+		{
+			return value_;
+		}
+
+	private:
+		int
+			len_;
+
+		cell *
+			addr_;
+
+		std::string
+			value_;
+	};
+
+	template <>
+	class ParamCast<std::string const &>
+	{
+	public:
+		ParamCast(AMX * amx, cell * params, int idx)
+		{
+			// Can't use `amx_StrParam` here, it allocates on the stack.  This
+			// `const` version is not optional at all - it ensures that the
+			// string data is NOT written back.
+			cell *
+				addr;
+			int
+				len;
+			amx_GetAddr(amx, params[idx], &addr);
+			amx_StrLen(addr, &len);
+			if (len)
+			{
+				char *
+					src = (char *)alloca(len + 1);
+				amx_GetString(src, addr, 0, len + 1);
+				value_ = src;
+			}
+			else
+				value_.clear();
+		}
+
+		~ParamCast()
+		{
+			// Some versions may need to write data back here, but not this one.
+		}
+
+		operator std::string const &()
+		{
+			return value_;
+		}
+
+	private:
+		std::string
+			value_;
 	};
 };
 
