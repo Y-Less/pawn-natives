@@ -1,9 +1,9 @@
 #pragma once
 
 #include <stdexcept>
-#include <plugin.h>
+#include <amx/amx.h>
 
-namespace plugin_natives
+namespace pawn_natives
 {
 	template <typename T>
 	class ParamCast

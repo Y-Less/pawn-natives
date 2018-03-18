@@ -2,16 +2,16 @@
 
 #include "NativeImport.hpp"
 
-namespace plugin_natives
+namespace pawn_natives
 {
-#ifdef PLUGIN_NATIVES_HAS_FUNC
+#ifdef PAWN_NATIVES_HAS_FUNC
 	std::list<NativeFuncBase *> *
 		NativeFuncBase::all_ = 0;
 #endif
 
-#ifdef PLUGIN_NATIVES_HAS_HOOK
+#ifdef PAWN_NATIVES_HAS_HOOK
 	static bool
-		gPluginNativesInit = true;
+		gPawnNativesInit = true;
 
 	std::list<NativeHookBase *> *
 		NativeHookBase::all_ = 0;
@@ -21,7 +21,7 @@ namespace plugin_natives
 	{
 		int
 			ret = 0;
-#ifdef PLUGIN_NATIVES_HAS_FUNC
+#ifdef PAWN_NATIVES_HAS_FUNC
 		if (NativeFuncBase::all_)
 		{
 			// Need a sentinel because of:
@@ -45,10 +45,10 @@ namespace plugin_natives
 			}
 		}
 #endif
-#ifdef PLUGIN_NATIVES_HAS_HOOK
-		if (gPluginNativesInit)
+#ifdef PAWN_NATIVES_HAS_HOOK
+		if (gPawnNativesInit)
 		{
-			gPluginNativesInit = false;
+			gPawnNativesInit = false;
 			if (NativeHookBase::all_)
 			{
 				AMX_NATIVE
