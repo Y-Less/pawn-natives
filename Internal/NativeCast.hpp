@@ -24,7 +24,7 @@ namespace pawn_natives
 	{
 		static float Val(cell ref)
 		{
-			return *(float *)ref;
+			return amx_ctof(ref);
 		}
 
 		static float * Ptr(cell * ref)
