@@ -613,7 +613,7 @@ namespace pawn_natives
 	    {                                                                       \
 	    public:                                                                 \
 	        Native_##nspace##_##func() :                                        \
-	            NativeHook<type>(#func, &sampgdk_##func, &Call) {}              \
+	            NativeHook<type>(#func, &sampgdk_##func, (AMX_NATIVE)&Call) {}              \
 	                                                                            \
 	        using NativeHookBase::IsEnabled;                                    \
 	                                                                            \

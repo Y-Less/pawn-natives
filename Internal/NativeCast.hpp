@@ -6,9 +6,8 @@
 namespace pawn_natives
 {
 	template <typename T>
-	class ParamLookup
+	struct ParamLookup
 	{
-	public:
 		static T Val(cell ref)
 		{
 			return (T)ref;
@@ -21,9 +20,8 @@ namespace pawn_natives
 	};
 
 	template <>
-	class ParamLookup<float>
+	struct ParamLookup<float>
 	{
-	public:
 		static float Val(cell ref)
 		{
 			return *(float *)ref;

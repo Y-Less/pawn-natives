@@ -410,7 +410,7 @@ namespace pawn_natives
 	    {                                                                       \
 	    public:                                                                 \
 	        Native_##nspace##_##func() :                                        \
-	            NativeFunc<type>(#func, &Call) {}                               \
+	            NativeFunc<type>(#func, (AMX_NATIVE)&Call) {}                   \
                                                                                 \
 	    private:                                                                \
 	        friend PAWN_NATIVE_DLLEXPORT PAWN_NATIVE__RETURN(type) PAWN_NATIVE_API \
