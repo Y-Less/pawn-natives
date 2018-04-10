@@ -59,7 +59,7 @@ This will declare a static native and register it.  If you want the function ava
 Prototype (declaration):
 
 ```cpp
-PAWN_NATIVE_DECL(Natives, IsValidDynamicCP, bool(int id))
+PAWN_NATIVE_DECL(Natives, IsValidDynamicCP, bool(int id));
 ```
 
 Defintion:
