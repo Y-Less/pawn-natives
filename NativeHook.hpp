@@ -604,11 +604,11 @@ namespace pawn_natives
 // use the common `IsEnabled` method, so re-export it.
 #define PAWN_HOOK_DECL(nspace,func,type) \
 	PAWN_NATIVE_EXPORT PAWN_NATIVE__RETURN(type) PAWN_NATIVE_API                \
-	    PAWN_NATIVE_##nspace##_##func PAWN_NATIVE__WITHOUT_RETURN_##type;       \
+	    PAWN_NATIVE_##nspace##_##func(PAWN_NATIVE__PARAMETERS(type));           \
 	                                                                            \
 	namespace nspace                                                            \
 	{                                                                           \
-	    extern class Native_##nspace##_##func :                                 \
+	    class Native_##nspace##_##func :                                        \
 	        public pawn_natives::NativeHook<type>                               \
 	    {                                                                       \
 	    public:                                                                 \
@@ -619,14 +619,16 @@ namespace pawn_natives
 	                                                                            \
 	    private:                                                                \
 	        friend PAWN_NATIVE_DLLEXPORT PAWN_NATIVE__RETURN(type) PAWN_NATIVE_API\
-	            ::PAWN_NATIVE_##nspace##_##func PAWN_NATIVE__WITHOUT_RETURN_##type;\
+	            ::PAWN_NATIVE_##nspace##_##func(PAWN_NATIVE__PARAMETERS(type)); \
 	                                                                            \
 	        static cell AMX_NATIVE_CALL                                         \
 	            Call(AMX * amx, cell * params);                                 \
 	                                                                            \
 	        PAWN_NATIVE__RETURN(type)                                           \
 	            Do PAWN_NATIVE__WITHOUT_RETURN_##type const;                    \
-	    } func;                                                                 \
+	    };                                                                      \
+	                                                                            \
+	    extern Native_##nspace##_##func func;                                   \
 	}
 
 // We can't pass exceptions to another module easily, so just don't...
