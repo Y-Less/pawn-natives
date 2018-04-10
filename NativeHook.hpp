@@ -603,29 +603,26 @@ namespace pawn_natives
 // normal users getting in to that data.  However, we do want them to be able to
 // use the common `IsEnabled` method, so re-export it.
 #define PAWN_HOOK_DECL(nspace,func,type) \
-	PAWN_NATIVE_EXPORT PAWN_NATIVE__RETURN(type) PAWN_NATIVE_API            \
-	    PAWN_NATIVE_##nspace##_##func PAWN_NATIVE__WITHOUT_RETURN_##type;            \
+	PAWN_NATIVE_EXPORT PAWN_NATIVE__RETURN(type) PAWN_NATIVE_API                \
+	    PAWN_NATIVE_##nspace##_##func PAWN_NATIVE__WITHOUT_RETURN_##type;       \
 	                                                                            \
 	namespace nspace                                                            \
 	{                                                                           \
 	    extern class Native_##nspace##_##func :                                 \
-	        public pawn_natives::NativeHook<type>                             \
+	        public pawn_natives::NativeHook<type>                               \
 	    {                                                                       \
 	    public:                                                                 \
 	        Native_##nspace##_##func() :                                        \
-	            NativeHook<type>(#func, &sampgdk_##func, (AMX_NATIVE)&Call) {}              \
+	            NativeHook<type>(#func, &sampgdk_##func, (AMX_NATIVE)&Call) {}  \
 	                                                                            \
 	        using NativeHookBase::IsEnabled;                                    \
 	                                                                            \
 	    private:                                                                \
-	        friend PAWN_NATIVE_DLLEXPORT PAWN_NATIVE__RETURN(type) PAWN_NATIVE_API  \
-	            ::PAWN_NATIVE_##nspace##_##func PAWN_NATIVE__WITHOUT_RETURN_##type;  \
+	        friend PAWN_NATIVE_DLLEXPORT PAWN_NATIVE__RETURN(type) PAWN_NATIVE_API\
+	            ::PAWN_NATIVE_##nspace##_##func PAWN_NATIVE__WITHOUT_RETURN_##type;\
 	                                                                            \
 	        static cell AMX_NATIVE_CALL                                         \
-	            Call(AMX * amx, cell * params)                                  \
-	        {                                                                   \
-	            return nspace::func.CallDoOuter(amx, params);                   \
-	        }                                                                   \
+	            Call(AMX * amx, cell * params);                                 \
 	                                                                            \
 	        PAWN_NATIVE__RETURN(type)                                           \
 	            Do PAWN_NATIVE__WITHOUT_RETURN_##type const;                    \
@@ -649,13 +646,21 @@ namespace pawn_natives
 //   
 // Which means nothing.
 #define PAWN_HOOK_DEFN(nspace,func,type) \
-	PAWN_NATIVE_EXPORT PAWN_NATIVE__RETURN(type) PAWN_NATIVE_API            \
-	    PAWN_NATIVE_##nspace##_##func(PAWN_NATIVE__PARAMETERS(type))                 \
+	nspace::Native_##nspace##_##func nspace::func;                              \
+	                                                                            \
+	cell AMX_NATIVE_CALL                                                        \
+	    nspace::Native_##nspace##_##func::Call(AMX * amx, cell * params)        \
+	{                                                                           \
+	    return ::nspace::func.CallDoOuter(amx, params);                         \
+	}                                                                           \
+	                                                                            \
+	PAWN_NATIVE_EXPORT PAWN_NATIVE__RETURN(type) PAWN_NATIVE_API                \
+	    PAWN_NATIVE_##nspace##_##func(PAWN_NATIVE__PARAMETERS(type))            \
 	{                                                                           \
 	    try                                                                     \
 	    {                                                                       \
 	        PAWN_NATIVE__MAYBE_RETURN(type)                                     \
-	            nspace::func(PAWN_NATIVE__CALLING(type));                       \
+	            ::nspace::func(PAWN_NATIVE__CALLING(type));                     \
 	    }                                                                       \
 	    catch (std::exception & e)                                              \
 	    {                                                                       \
@@ -673,7 +678,6 @@ namespace pawn_natives
 	    PAWN_NATIVE__MAYBE_RETURN(type) {};                                     \
 	}                                                                           \
 	                                                                            \
-	nspace::Native_##nspace##_##func nspace::func;                              \
 	PAWN_NATIVE__RETURN(type)                                                   \
 	    nspace::Native_##nspace##_##func::                                      \
 	    Do PAWN_NATIVE__WITHOUT_RETURN_##type const
