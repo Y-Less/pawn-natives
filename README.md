@@ -166,7 +166,7 @@ To import natives from another plugin, use this instead:
 Like most things, this does require initialisation.  Fortunately this is quite simple.  In one file (probably your main file) add:
 
 ```cpp
-#include <pawn-natives/NativeMain>
+#include <pawn-natives/NativesMain>
 ```
 
 That will provide storage space for required objects and variables.  It is important that this comes AFTER `NativeFunc` and `NativeHook` if you want them - it only includes objects for the parts it knows you want.
@@ -176,19 +176,19 @@ This is good:
 ```cpp
 #include <pawn-natives/NativeFunc>
 #include <pawn-natives/NativeHook>
-#include <pawn-natives/NativeMain>
+#include <pawn-natives/NativesMain>
 ```
 
 These are bad:
 
 ```cpp
 #include <pawn-natives/NativeFunc>
-#include <pawn-natives/NativeMain>
+#include <pawn-natives/NativesMain>
 #include <pawn-natives/NativeHook>
 ```
 
 ```cpp
-#include <pawn-natives/NativeMain>
+#include <pawn-natives/NativesMain>
 #include <pawn-natives/NativeHook>
 #include <pawn-natives/NativeFunc>
 ```
@@ -204,7 +204,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx)
 }
 ```
 
-If you are only importing nativs, not declaring any, you don't need `NativeMain` or `pawn_natives::AmxLoad`.
+If you are only importing natives, not declaring any, you don't need `NativesMain` or `pawn_natives::AmxLoad`.
 
 ### Calls
 
