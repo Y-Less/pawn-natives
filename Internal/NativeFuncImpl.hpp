@@ -144,6 +144,6 @@ namespace pawn_natives
 	};
 
 	template <typename RET, PAWN_HOOK_TEMPLATE>
-	class NativeFunc<RET(PAWN_HOOK_TYPES)> : public PAWN_HOOK_NAME<RET, PAWN_HOOK_TYPES> { protected: NativeFunc(char const * const name, AMX_NATIVE native) : PAWN_HOOK_NAME(name, native) {} };
+	class NativeFunc<RET(PAWN_HOOK_TYPES)> : public PAWN_HOOK_NAME<RET, PAWN_HOOK_TYPES> { protected: NativeFunc(char const * const name, AMX_NATIVE native) : PAWN_HOOK_NAME<RET, PAWN_HOOK_TYPES>(name, native) {} };
 };
 

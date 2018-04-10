@@ -353,7 +353,7 @@ namespace pawn_natives
 	};
 
 	template <typename RET>
-	class NativeHook<RET()> : public NativeHook0<RET> { NativeHook(char const * const name, implementation_t original, AMX_NATIVE replacement) : NativeHook0(name, original, replacement) {} };
+	class NativeHook<RET()> : public NativeHook0<RET> { NativeHook(char const * const name, implementation_t original, AMX_NATIVE replacement) : NativeHook0<RET>(name, original, replacement) {} };
 };
 
 #if defined PAWN_NATIVES_STORAGE

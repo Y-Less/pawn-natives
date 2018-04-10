@@ -162,7 +162,7 @@ namespace pawn_natives
 	};
 
 	template <typename RET>
-	class NativeFunc<RET()> : public NativeFunc0<RET> { protected: NativeFunc(char const * const name, AMX_NATIVE native) : NativeFunc0(name, native) {} };
+	class NativeFunc<RET()> : public NativeFunc0<RET> { protected: NativeFunc(char const * const name, AMX_NATIVE native) : NativeFunc0<RET>(name, native) {} };
 };
 
 // Defer declaring the other classes to a super macro file.
