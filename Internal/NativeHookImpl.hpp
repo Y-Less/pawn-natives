@@ -34,9 +34,9 @@ namespace pawn_natives
 
 			ScopedCall(ScopedCall && that)
 			:
-				hook_(std::move(that.hook_)),
-				original_(std::move(that.original_)),
-				removed_(std::move(that.removed_))
+				hook_(that.hook_),
+				original_(that.original_),
+				removed_(that.removed_)
 			{
 				that.removed_ = false;
 			}
@@ -182,9 +182,9 @@ namespace pawn_natives
 
 			ScopedCall(ScopedCall && that)
 			:
-				hook_(std::move(that.hook_)),
-				original_(std::move(that.original_)),
-				removed_(std::move(that.removed_))
+				hook_(that.hook_),
+				original_(that.original_),
+				removed_(that.removed_)
 			{
 				that.removed_ = false;
 			}
@@ -293,6 +293,6 @@ namespace pawn_natives
 	};
 
 	template <typename RET, PAWN_HOOK_TEMPLATE>
-	class NativeHook<RET(PAWN_HOOK_TYPES)> : public PAWN_HOOK_NAME<RET, PAWN_HOOK_TYPES> { protected: NativeHook(char const * const name, implementation_t original, AMX_NATIVE replacement) : PAWN_HOOK_NAME<RET, PAWN_HOOK_TYPES>(name, original, replacement) {} };
+	class NativeHook<RET(PAWN_HOOK_TYPES)> : public PAWN_HOOK_NAME<RET, PAWN_HOOK_TYPES> { protected: NativeHook(char const * const name, typename PAWN_HOOK_NAME<RET, PAWN_HOOK_TYPES>::implementation_t original, AMX_NATIVE replacement) : PAWN_HOOK_NAME<RET, PAWN_HOOK_TYPES>(name, original, replacement) {} };
 };
 

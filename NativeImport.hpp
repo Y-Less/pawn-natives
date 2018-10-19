@@ -92,7 +92,6 @@ namespace pawn_natives
 	} * varargs_t;
 };
 
-
 #define PAWN_NATIVE__DEFER(a,b) a b
 
 #define PAWN_NATIVE__TYPE(tt) typename ::pawn_natives::TypeResolver<void(tt)>::type
@@ -199,8 +198,8 @@ namespace pawn_natives
 
 // Import a native from another plugin.
 #define PAWN_IMPORT(nspace,func,type) \
-	PAWN_NATIVE_IMPORT PAWN_NATIVE__RETURN(type) PAWN_NATIVE_API            \
-	    PAWN_NATIVE_##nspace##_##func PAWN_NATIVE__WITHOUT_RETURN_##type;            \
+	PAWN_NATIVE_IMPORT PAWN_NATIVE__RETURN(type) PAWN_NATIVE_API                \
+	    PAWN_NATIVE_##nspace##_##func PAWN_NATIVE__WITHOUT_RETURN_##type;       \
 	                                                                            \
 	namespace nspace                                                            \
 	{                                                                           \
@@ -208,7 +207,7 @@ namespace pawn_natives
 	        func(PAWN_NATIVE__PARAMETERS(type))                                 \
 	    {                                                                       \
 	        PAWN_NATIVE__MAYBE_RETURN(type)                                     \
-	            PAWN_NATIVE_##nspace##_##func(PAWN_NATIVE__CALLING(type));           \
+	            PAWN_NATIVE_##nspace##_##func(PAWN_NATIVE__CALLING(type));      \
 	    }                                                                       \
 	}
 
