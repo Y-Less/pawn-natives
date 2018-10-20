@@ -5,27 +5,15 @@ if (NOT MAIN_RUN)
 
 		include(ExternalProject)
 
-		# if (WIN32)
-				# ExternalProject_Add (
-						# cmake-modules
-						# PREFIX "cmake-modules"
-						# GIT_REPOSITORY "https://github.com/Zeex/cmake-modules.git"
-						# GIT_TAG "master"
-						# UPDATE_COMMAND ""
-						# CONFIGURE_COMMAND mkdir ..\\..\\..\\cmake
-						# BUILD_COMMAND cp ${CMAKE_SOURCE_DIR}/cmake-modules/src/cmake-modules/*.cmake ${CMAKE_SOURCE_DIR}/cmake )
-		# else ()
-				ExternalProject_Add (
-						cmake-modules
-						PREFIX "cmake-modules"
-						GIT_REPOSITORY "https://github.com/Zeex/cmake-modules.git"
-						GIT_TAG "master"
-						UPDATE_COMMAND ""
-						CONFIGURE_COMMAND "" #mkdir ../../../cmake
-						BUILD_COMMAND "" #cp ${CMAKE_SOURCE_DIR}/cmake-modules/src/cmake-modules/*.cmake ${CMAKE_SOURCE_DIR}/cmake )
-						INSTALL_COMMAND "" )
-		# endif()
-		list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake-modules/src/cmake-modules)
+		ExternalProject_Add (
+				cmake-modules
+				PREFIX "cmake-modules"
+				GIT_REPOSITORY "https://github.com/Zeex/cmake-modules.git"
+				GIT_TAG "master"
+				UPDATE_COMMAND ""
+				CONFIGURE_COMMAND ""
+				BUILD_COMMAND ""
+				INSTALL_COMMAND "" )
 
 		ExternalProject_Add (
 				samp-plugin-sdk
@@ -41,7 +29,11 @@ if (NOT MAIN_RUN)
 				subhook
 				PREFIX "subhook"
 				GIT_REPOSITORY "https://github.com/Zeex/subhook.git"
-				GIT_TAG "master" )
+				GIT_TAG "master"
+				UPDATE_COMMAND ""
+				CONFIGURE_COMMAND ""
+				BUILD_COMMAND ""
+				INSTALL_COMMAND "" )
 
 		ExternalProject_Add (
 				sampgdk
@@ -55,19 +47,15 @@ if (NOT MAIN_RUN)
 
 		add_custom_command(TARGET sampgdk POST_BUILD
 				COMMAND "${CMAKE_COMMAND}" ${CMAKE_SOURCE_DIR} -DMAIN_RUN=TRUE
-				COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_SOURCE_DIR} )
+				COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_SOURCE_DIR}
+				COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_SOURCE_DIR} --config Release)
 else ()
 		project(pawn-natives)
 
-		#if (${SAMP_CMAKE_MODULES} STREQUAL "NOTFOUND")
-		#		message("------------------------------------------------")
-		#		message("| Initial clone complete, please re-run cmake. |")
-		#		message("------------------------------------------------")
-		#endif ()
 		# Now that we have them, use them.
 		list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake-modules/src/cmake-modules)
-		include(AMXConfig) #OPTIONAL RESULT_VARIABLE SAMP_CMAKE_MODULES)
-		include(AddSAMPPlugin) #OPTIONAL)
+		include(AMXConfig)
+		include(AddSAMPPlugin)
 
 		include_directories(
 				samp-plugin-sdk/src/samp-plugin-sdk/
@@ -76,7 +64,6 @@ else ()
 				sampgdk/src/sampgdk-build/include/
 		)
 
-		#find_package(sampgdk REQUIRED)
 		add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 		add_definitions(-DSUBHOOK_IMPLEMENTATION)
 		add_definitions(-DHAVE_STDINT_H=1)

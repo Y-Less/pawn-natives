@@ -344,3 +344,23 @@ SetPlayerPos(playerid, 10.0, 10.0, 1000.0);
 And you don't need to know if there is a hook or not.  If there is one, because of the `#undef` that will call the hook function directly, instead of going through the AMX.  If there isn't one, that will call `sampgdk_SetPlayerPos`.  Were we to use the namespaces instead of the pre-processor, we would have to use `sampgdk::SetPlayerPos` or `my_namespace::SetPlayerPos` explicitly.  Using two `using namespace`s would introduce two identically named symbols in to the current scope and the compiler would complain, forcing you to distinguish with the prefix despite using `using`.
 
 This makes your code more future-proof.  You don't need to worry if there ever will be a hook on that function in the future - just write it like that and the compiler will deal with changes.
+
+## Testing
+
+```
+# Before you start
+pip install PLY cidl
+```
+
+```
+mkdir build
+cmake .
+cd build
+cmake --build ..
+```
+
+```
+# Optional
+cmake --build .. --config Release
+```
+
