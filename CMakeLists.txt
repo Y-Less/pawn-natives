@@ -1,54 +1,70 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.1)
 
 if (NOT MAIN_RUN)
 		project(dependencies)
 
 		include(ExternalProject)
 
-		ExternalProject_Add (
-				cmake-modules
-				PREFIX "cmake-modules"
-				GIT_REPOSITORY "https://github.com/Zeex/cmake-modules.git"
-				GIT_TAG "master"
-				UPDATE_COMMAND ""
-				CONFIGURE_COMMAND ""
-				BUILD_COMMAND ""
-				INSTALL_COMMAND "" )
-
-		ExternalProject_Add (
-				samp-plugin-sdk
+		ExternalProject_Add(samp-plugin-sdk
 				PREFIX "samp-plugin-sdk"
 				GIT_REPOSITORY "https://github.com/Y-Less/samp-plugin-sdk.git"
 				GIT_TAG "master"
 				UPDATE_COMMAND ""
 				CONFIGURE_COMMAND ""
 				BUILD_COMMAND ""
-				INSTALL_COMMAND "" )
+				INSTALL_COMMAND ""
+		)
 
-		ExternalProject_Add (
-				subhook
+		if (NOT WIN32)
+				ExternalProject_Add(sampgdk
+						PREFIX "sampgdk"
+						GIT_REPOSITORY "https://github.com/Zeex/sampgdk.git"
+						GIT_TAG "master"
+						UPDATE_COMMAND ""
+						BUILD_COMMAND ${CMAKE_COMMAND} --build . --config Release
+						INSTALL_COMMAND ""
+						CMAKE_ARGS "-DSAMP_SDK_ROOT=${CMAKE_SOURCE_DIR}/samp-plugin-sdk/src/samp-plugin-sdk"
+				)
+		endif ()
+
+		ExternalProject_Add(cmake-modules
+				PREFIX "cmake-modules"
+				GIT_REPOSITORY "https://github.com/Zeex/cmake-modules.git"
+				GIT_TAG "master"
+				UPDATE_COMMAND ""
+				CONFIGURE_COMMAND ""
+				BUILD_COMMAND ""
+				INSTALL_COMMAND ""
+		)
+
+		ExternalProject_Add(subhook
 				PREFIX "subhook"
 				GIT_REPOSITORY "https://github.com/Zeex/subhook.git"
 				GIT_TAG "master"
 				UPDATE_COMMAND ""
 				CONFIGURE_COMMAND ""
 				BUILD_COMMAND ""
-				INSTALL_COMMAND "" )
+				INSTALL_COMMAND ""
+		)
 
-		ExternalProject_Add (
-				sampgdk
-				PREFIX "sampgdk"
-				GIT_REPOSITORY "https://github.com/Zeex/sampgdk.git"
-				GIT_TAG "master"
-				UPDATE_COMMAND ""
-				BUILD_COMMAND ${CMAKE_COMMAND} --build . --config Release
-				INSTALL_COMMAND ${CMAKE_COMMAND} --build . --config Release --target Install
-				CMAKE_ARGS "-DSAMP_SDK_ROOT=${CMAKE_SOURCE_DIR}/samp-plugin-sdk/src/samp-plugin-sdk" )
+		if (WIN32)
+				# Windows seems to go top-to-bottom.  Linux the other way...
+				ExternalProject_Add(sampgdk
+						PREFIX "sampgdk"
+						GIT_REPOSITORY "https://github.com/Zeex/sampgdk.git"
+						GIT_TAG "master"
+						UPDATE_COMMAND ""
+						BUILD_COMMAND ${CMAKE_COMMAND} --build . --config Release
+						INSTALL_COMMAND ${CMAKE_COMMAND} --build . --config Release --target Install
+						CMAKE_ARGS "-DSAMP_SDK_ROOT=${CMAKE_SOURCE_DIR}/samp-plugin-sdk/src/samp-plugin-sdk"
+				)
+		endif ()
 
 		add_custom_command(TARGET sampgdk POST_BUILD
 				COMMAND "${CMAKE_COMMAND}" ${CMAKE_SOURCE_DIR} -DMAIN_RUN=TRUE
 				COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_SOURCE_DIR}
-				COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_SOURCE_DIR} --config Release)
+				COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_SOURCE_DIR} --config Release
+		)
 else ()
 		project(pawn-natives)
 
@@ -59,6 +75,7 @@ else ()
 
 		include_directories(
 				samp-plugin-sdk/src/samp-plugin-sdk/
+				samp-plugin-sdk/src/samp-plugin-sdk/amx
 				subhook/src/
 				sampgdk/src/sampgdk/include/
 				sampgdk/src/sampgdk-build/include/
@@ -79,7 +96,12 @@ else ()
 				target_link_libraries(pawn-natives
 						${CMAKE_SOURCE_DIR}/sampgdk/src/sampgdk-build/Release/sampgdk4.lib
 				)
+
+				set_target_properties(pawn-natives PROPERTIES LINKER_LANGUAGE CXX)
 		else ()
+				set(CMAKE_CXX_FLAGS "-std=c++0x")
 		endif ()
 endif ()
+
+
 
