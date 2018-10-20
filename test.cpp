@@ -39,6 +39,19 @@ PAWN_HOOK(test, SetPlayerInterior, bool(int playerid, int interior))
 	return SetPlayerInterior(playerid, 0);
 }
 
+int
+	g_pool = 0;
+
+PAWN_NATIVE(test, SetPlayerPoolSize, void(int num))
+{
+	g_pool = num;
+}
+
+PAWN_HOOK(test, GetPlayerPoolSize, int())
+{
+	return g_pool;
+}
+
 extern void *
 	pAMXFunctions;
 
