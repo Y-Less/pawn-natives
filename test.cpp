@@ -9,9 +9,6 @@
 	#define UNMANGLE(name,size)
 #endif
 
-#include <samp-plugin-sdk/amxplugin.cpp>
-#include <samp-plugin-sdk/amxplugin2.cpp>
-
 #include "NativeHook.hpp"
 #include "NativeFunc.hpp"
 #include "NativeImport.hpp"
