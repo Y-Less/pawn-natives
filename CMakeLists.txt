@@ -99,7 +99,7 @@ else ()
 
 				set_target_properties(pawn-natives PROPERTIES LINKER_LANGUAGE CXX)
 		else ()
-				set(CMAKE_CXX_FLAGS "-std=c++0x")
+				set(CMAKE_CXX_FLAGS "-std=gnu++0x")
 		endif ()
 endif ()
 

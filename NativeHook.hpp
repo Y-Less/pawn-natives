@@ -602,7 +602,8 @@ namespace pawn_natives
 // The inheritance from `NativeHookBase` is protected, because we don't want
 // normal users getting in to that data.  However, we do want them to be able to
 // use the common `IsEnabled` method, so re-export it.
-#define PAWN_HOOK_DECL(nspace,func,type) \
+#define PAWN_HOOK_DECL(nspace, func, type) PAWN_HOOK_DECL_(nspace, func, type)
+#define PAWN_HOOK_DECL_(nspace, func, type) \
 	PAWN_NATIVE_EXPORT PAWN_NATIVE__RETURN(type) PAWN_NATIVE_API                \
 	    PAWN_NATIVE_##nspace##_##func(PAWN_NATIVE__PARAMETERS(type));           \
 	                                                                            \
@@ -625,7 +626,7 @@ namespace pawn_natives
 	            Call(AMX * amx, cell * params);                                 \
 	                                                                            \
 	        PAWN_NATIVE__RETURN(type)                                           \
-	            Do PAWN_NATIVE__WITHOUT_RETURN_##type const;                    \
+	            Do(CAT(PAWN_NATIVE__WITHOUT_RETURN_, type)) const;              \
 	    };                                                                      \
 	                                                                            \
 	    extern Native_##nspace##_##func func;                                   \
@@ -647,7 +648,8 @@ namespace pawn_natives
 //   {};
 //   
 // Which means nothing.
-#define PAWN_HOOK_DEFN(nspace,func,type) \
+#define PAWN_HOOK_DEFN(nspace, func, type) PAWN_HOOK_DEFN_(nspace, func, type)
+#define PAWN_HOOK_DEFN_(nspace, func, type) \
 	nspace::Native_##nspace##_##func nspace::func;                              \
 	                                                                            \
 	cell AMX_NATIVE_CALL                                                        \
@@ -682,12 +684,12 @@ namespace pawn_natives
 	                                                                            \
 	PAWN_NATIVE__RETURN(type)                                                   \
 	    nspace::Native_##nspace##_##func::                                      \
-	    Do PAWN_NATIVE__WITHOUT_RETURN_##type const
+	    Do(CAT(PAWN_NATIVE__WITHOUT_RETURN_, type)) const
 
 #define PAWN_HOOK_DECLARE PAWN_HOOK_DECL
 #define PAWN_HOOK_DEFINE  PAWN_HOOK_DEFN
 
-#define PAWN_HOOK(nspace,func,type) PAWN_HOOK_DECL(nspace,func,type);PAWN_HOOK_DEFN(nspace,func,type)
+#define PAWN_HOOK(nspace, func, type) PAWN_HOOK_DECL_(nspace, func, type); PAWN_HOOK_DEFN_(nspace, func, type)
 
 #if 0
 
@@ -709,4 +711,5 @@ PAWN_HOOK_DEFN(fixes, SetPlayerPos, bool(int playerid, float x, float y, float z
 }
 
 #endif
+
 

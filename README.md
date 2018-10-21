@@ -364,3 +364,10 @@ cmake --build ..
 cmake --build .. --config Release
 ```
 
+```
+# If there's a problem
+cmake .. -DMAIN_RUN=FALSE
+cmake --build ..
+```
+
+
