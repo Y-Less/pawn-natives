@@ -99,7 +99,11 @@ else ()
 
 				set_target_properties(pawn-natives PROPERTIES LINKER_LANGUAGE CXX)
 		else ()
-				set(CMAKE_CXX_FLAGS "-std=gnu++0x")
+				target_link_libraries(pawn-natives
+						${CMAKE_SOURCE_DIR}/sampgdk/src/sampgdk-build/libsampgdk.so
+				)
+
+				set(CMAKE_CXX_FLAGS "-std=gnu++0x -m32")
 		endif ()
 endif ()
 
