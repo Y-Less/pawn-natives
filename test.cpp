@@ -9,16 +9,35 @@
 	#define UNMANGLE(name,size)
 #endif
 
+#include <sampgdk/interop.h>
+
 #include "NativeHook.hpp"
 #include "NativeFunc.hpp"
 #include "NativeImport.hpp"
 #include "NativesMain.hpp"
 
-#define SAMPGDK_CPP_WRAPPERS
 #include <sampgdk/core.h>
 #include <sampgdk/a_players.h>
 #include <sampgdk/a_samp.h>
-using namespace sampgdk;
+
+#include <memory>
+#include <array>
+
+struct Player
+{
+	int TotalMoney;
+};
+
+std::array<std::shared_ptr<Player>, 1000> PlayerList;
+
+#undef GivePlayerMoney
+PAWN_HOOK(Natives, GivePlayerMoney, bool(int playerid, int money))
+{
+	char msg[64];
+	sprintf(msg, "Giving you %d", money);
+	SendClientMessage(playerid, 0xFF0000AA, msg);
+	return GivePlayerMoney(playerid, money);
+}
 
 // In your header:
 PAWN_NATIVE_DECL(test, SetPlayerPosAndAngle, bool(int playerid, float x, float y, float z, float a));
@@ -30,6 +49,7 @@ PAWN_NATIVE_DEFN(test, SetPlayerPosAndAngle, bool(int playerid, float x, float y
 	return SetPlayerPos(playerid, x, y, z) && SetPlayerFacingAngle(playerid, a);
 }
 
+#undef SetPlayerInterior
 PAWN_HOOK(test, SetPlayerInterior, bool(int playerid, int interior))
 {
 	SendClientMessage(playerid, 0xFF0000AA, "You cannot go in there.");
@@ -44,6 +64,7 @@ PAWN_NATIVE(test, SetPlayerPoolSize, void(int num))
 	g_pool = num;
 }
 
+#undef GetPlayerPoolSize
 PAWN_HOOK(test, GetPlayerPoolSize, int())
 {
 	return g_pool;
@@ -87,4 +108,5 @@ PLUGIN_EXPORT void PLUGIN_CALL ProcessTick()
 {
 	sampgdk::ProcessTick();
 }
+
 

@@ -4,7 +4,6 @@
 #include <list>
 
 #include <subhook/subhook.h>
-#include <sampgdk/interop.h>
 
 #include "NativeImport.hpp"
 #include "Internal/NativeCast.hpp"
