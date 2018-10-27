@@ -56,7 +56,11 @@ namespace pawn_natives
 						throw std::invalid_argument("Insufficient arguments.");
 					ret = this->CallDoInner(amx, params);
 				}
-				catch (std::exception & e)
+				catch (ParamCastFailure const &)
+				{
+					// Acceptable failure (lookup failed etc.)
+				}
+				catch (std::exception const & e)
 				{
 					char
 						msg[1024];

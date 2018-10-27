@@ -5,6 +5,21 @@
 
 namespace pawn_natives
 {
+	// This is for any casts that can't go on, but where this is somewhat expected.  For example, a
+	// cast to a player when there is no player.
+	class ParamCastFailure : public ::std::invalid_argument
+	{
+	public:
+		explicit ParamCastFailure() : ::std::invalid_argument("ParamCast failed acceptably.") {}
+	};
+
+	// This is for true cast errors.
+	class ParamCastError : public ::std::invalid_argument
+	{
+	public:
+		explicit ParamCastError() : ::std::invalid_argument("ParamCast had an exception.") {}
+	};
+
 	template <typename T>
 	struct ParamLookup
 	{
