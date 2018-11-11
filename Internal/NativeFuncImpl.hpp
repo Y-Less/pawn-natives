@@ -88,6 +88,7 @@ namespace pawn_natives
 	private:
 		cell CallDoInner(AMX * amx, cell * params)
 		{
+				int idx = 1;
 			#if PAWN_HOOK_NUMBER >= 1
 				ParamCast<A> a(amx, params, idx);
 				idx += ParamCast<A>::Size;
