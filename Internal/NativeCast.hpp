@@ -68,6 +68,8 @@ namespace pawn_natives
 			return value_;
 		}
 
+		static constexpr int Size = 1;
+
 	private:
 		T
 			value_;
@@ -101,6 +103,8 @@ namespace pawn_natives
 			return value_;
 		}
 
+		static constexpr int Size = 1;
+
 	private:
 		T
 			value_;
@@ -125,6 +129,8 @@ namespace pawn_natives
 		{
 			return &value_;
 		}
+
+		static constexpr int Size = 1;
 
 	private:
 		struct varargs_s
@@ -152,6 +158,8 @@ namespace pawn_natives
 		{
 			return &value_;
 		}
+
+		static constexpr int Size = 1;
 
 	private:
 		struct varargs_s
@@ -182,6 +190,8 @@ namespace pawn_natives
 			return value_;
 		}
 
+		static constexpr int Size = 1;
+
 	private:
 		T *
 			value_;
@@ -208,6 +218,8 @@ namespace pawn_natives
 		{
 			return value_;
 		}
+
+		static constexpr int Size = 1;
 
 	private:
 		T &
@@ -243,6 +255,8 @@ namespace pawn_natives
 		{
 			return value_;
 		}
+
+		static constexpr int Size = 1;
 
 	private:
 		T *
@@ -290,6 +304,8 @@ namespace pawn_natives
 		{
 			return value_;
 		}
+
+		static constexpr int Size = 1;
 
 	private:
 		int
@@ -344,6 +360,8 @@ namespace pawn_natives
 			return value_;
 		}
 
+		static constexpr int Size = 1;
+
 	private:
 		char *
 			value_;
@@ -392,6 +410,8 @@ namespace pawn_natives
 			return value_;
 		}
 
+		static constexpr int Size = 1;
+
 	private:
 		int
 			len_;
@@ -438,6 +458,8 @@ namespace pawn_natives
 		{
 			return value_;
 		}
+
+		static constexpr int Size = 1;
 
 	private:
 		std::string
