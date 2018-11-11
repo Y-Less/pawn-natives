@@ -127,31 +127,31 @@ namespace pawn_natives
 				idx += ParamCast<I>::Size;
 			#endif
 			#if PAWN_HOOK_NUMBER >= 10
-				ParamCast<J> j(amx, params, 1idx);
+				ParamCast<J> j(amx, params, idx);
 				idx += ParamCast<J>::Size;
 			#endif
 			#if PAWN_HOOK_NUMBER >= 11
-				ParamCast<K> k(amx, params, 1idx);
+				ParamCast<K> k(amx, params, idx);
 				idx += ParamCast<K>::Size;
 			#endif
 			#if PAWN_HOOK_NUMBER >= 12
-				ParamCast<L> l(amx, params, 1idx);
+				ParamCast<L> l(amx, params, idx);
 				idx += ParamCast<L>::Size;
 			#endif
 			#if PAWN_HOOK_NUMBER >= 13
-				ParamCast<M> m(amx, params, 1idx);
+				ParamCast<M> m(amx, params, idx);
 				idx += ParamCast<M>::Size;
 			#endif
 			#if PAWN_HOOK_NUMBER >= 14
-				ParamCast<N> n(amx, params, 1idx);
+				ParamCast<N> n(amx, params, idx);
 				idx += ParamCast<N>::Size;
 			#endif
 			#if PAWN_HOOK_NUMBER >= 15
-				ParamCast<O> o(amx, params, 1idx);
+				ParamCast<O> o(amx, params, idx);
 				idx += ParamCast<O>::Size;
 			#endif
 			#if PAWN_HOOK_NUMBER >= 16
-				ParamCast<P> p(amx, params, 1idx);
+				ParamCast<P> p(amx, params, idx);
 				idx += ParamCast<P>::Size;
 			#endif
 				RET
