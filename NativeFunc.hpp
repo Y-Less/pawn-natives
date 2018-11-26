@@ -113,12 +113,56 @@ namespace pawn_natives
 			all_;
 	};
 
-	template <typename FUNC_TYPE>
-	class NativeFunc {};
+	template <typename RET, typename ... TS>
+	class NativeFunc : protected NativeFuncBase
+	{
+	public:
+		inline RET operator()(TS ... args)
+		{
+			return Do(args ...);
+		}
 
-	// A pretty horrible combination of templates that make hooks quite seamless.
+		virtual RET Do(TS ...) const = 0;
+
+	protected:
+		NativeFunc(char const * const name, AMX_NATIVE native) : NativeFuncBase(ParamData<TS ...>::Sum(), name, native) {}
+		~NativeFunc() = default;
+
+	private:
+
+		cell CallDoInner(AMX * amx, cell * params)
+		{
+			RET
+				ret = ParamData<TS ...>::Call(this, amx, params);
+			return *(cell *)&ret;
+		}
+	};
+
+	template <typename ... TS>
+	class NativeFunc<void, TS ...> : protected NativeFuncBase
+	{
+	public:
+		inline void operator()(TS ... args)
+		{
+			Do(args ...);
+		}
+
+		virtual void Do(TS ...) const = 0;
+
+	protected:
+		NativeFunc(char const * const name, AMX_NATIVE native) : NativeFuncBase(ParamData<TS ...>::Sum(), name, native) {}
+		~NativeFunc() = default;
+
+	private:
+		cell CallDoInner(AMX * amx, cell * params)
+		{
+			ParamData<TS ...>::Call(this, amx, params);
+			return 0;
+		}
+	};
+
 	template <typename RET>
-	class NativeFunc0 : protected NativeFuncBase
+	class NativeFunc<RET> : protected NativeFuncBase
 	{
 	public:
 		inline RET operator()()
@@ -126,24 +170,23 @@ namespace pawn_natives
 			return Do();
 		}
 
+		virtual RET Do() const = 0;
+
 	protected:
-		NativeFunc0(char const * const name, AMX_NATIVE native) : NativeFuncBase(0, name, native) {}
-		~NativeFunc0() = default;
+		NativeFunc(char const * const name, AMX_NATIVE native) : NativeFuncBase(0, name, native) {}
+		~NativeFunc() = default;
 
 	private:
-		cell CallDoInner(AMX *, cell *)
+		cell CallDoInner(AMX * amx, cell * params)
 		{
 			RET
-				ret = this->Do();
+				ret = ParamData<>::Call(this, amx, params);
 			return *(cell *)&ret;
 		}
-
-		virtual RET Do() const = 0;
 	};
 
-	// Template specialisation for void returns, since they can't use "return X()".
 	template <>
-	class NativeFunc0<void> : protected NativeFuncBase
+	class NativeFunc<void> : protected NativeFuncBase
 	{
 	public:
 		inline void operator()()
@@ -151,248 +194,20 @@ namespace pawn_natives
 			Do();
 		}
 
+		virtual void Do() const = 0;
+
 	protected:
-		NativeFunc0(char const * const name, AMX_NATIVE native) : NativeFuncBase(0, name, native) {}
-		~NativeFunc0() = default;
+		NativeFunc(char const * const name, AMX_NATIVE native) : NativeFuncBase(0, name, native) {}
+		~NativeFunc() = default;
 
 	private:
-		cell CallDoInner(AMX *, cell *)
+		cell CallDoInner(AMX * amx, cell * params)
 		{
-			this->Do();
-			return 1;
+			ParamData<>::Call(this, amx, params);
+			return 0;
 		}
-
-		virtual void Do() const = 0;
 	};
-
-	template <typename RET>
-	class NativeFunc<RET()> : public NativeFunc0<RET> { protected: NativeFunc(char const * const name, AMX_NATIVE native) : NativeFunc0<RET>(name, native) {} };
 };
-
-// Defer declaring the other classes to a super macro file.
-#define PAWN_HOOK_TEMPLATE   typename A
-#define PAWN_HOOK_NAME       NativeFunc1
-#define PAWN_HOOK_TYPES      A
-#define PAWN_HOOK_PARAMETERS A a
-#define PAWN_HOOK_CALLING    a
-#define PAWN_HOOK_NUMBER     1
-#include "Internal/NativeFuncImpl.hpp"
-#undef PAWN_HOOK_NUMBER
-#undef PAWN_HOOK_CALLING
-#undef PAWN_HOOK_PARAMETERS
-#undef PAWN_HOOK_TYPES
-#undef PAWN_HOOK_NAME
-#undef PAWN_HOOK_TEMPLATE
-
-#define PAWN_HOOK_TEMPLATE   typename A, typename B
-#define PAWN_HOOK_NAME       NativeFunc2
-#define PAWN_HOOK_TYPES      A, B
-#define PAWN_HOOK_PARAMETERS A a, B b
-#define PAWN_HOOK_CALLING    a, b
-#define PAWN_HOOK_NUMBER     2
-#include "Internal/NativeFuncImpl.hpp"
-#undef PAWN_HOOK_NUMBER
-#undef PAWN_HOOK_CALLING
-#undef PAWN_HOOK_PARAMETERS
-#undef PAWN_HOOK_TYPES
-#undef PAWN_HOOK_NAME
-#undef PAWN_HOOK_TEMPLATE
-
-#define PAWN_HOOK_TEMPLATE   typename A, typename B, typename C
-#define PAWN_HOOK_NAME       NativeFunc3
-#define PAWN_HOOK_TYPES      A, B, C
-#define PAWN_HOOK_PARAMETERS A a, B b, C c
-#define PAWN_HOOK_CALLING    a, b, c
-#define PAWN_HOOK_NUMBER     3
-#include "Internal/NativeFuncImpl.hpp"
-#undef PAWN_HOOK_NUMBER
-#undef PAWN_HOOK_CALLING
-#undef PAWN_HOOK_PARAMETERS
-#undef PAWN_HOOK_TYPES
-#undef PAWN_HOOK_NAME
-#undef PAWN_HOOK_TEMPLATE
-
-#define PAWN_HOOK_TEMPLATE   typename A, typename B, typename C, typename D
-#define PAWN_HOOK_NAME       NativeFunc4
-#define PAWN_HOOK_TYPES      A, B, C, D
-#define PAWN_HOOK_PARAMETERS A a, B b, C c, D d
-#define PAWN_HOOK_CALLING    a, b, c, d
-#define PAWN_HOOK_NUMBER     4
-#include "Internal/NativeFuncImpl.hpp"
-#undef PAWN_HOOK_NUMBER
-#undef PAWN_HOOK_CALLING
-#undef PAWN_HOOK_PARAMETERS
-#undef PAWN_HOOK_TYPES
-#undef PAWN_HOOK_NAME
-#undef PAWN_HOOK_TEMPLATE
-
-#define PAWN_HOOK_TEMPLATE   typename A, typename B, typename C, typename D, typename E
-#define PAWN_HOOK_NAME       NativeFunc5
-#define PAWN_HOOK_TYPES      A, B, C, D, E
-#define PAWN_HOOK_PARAMETERS A a, B b, C c, D d, E e
-#define PAWN_HOOK_CALLING    a, b, c, d, e
-#define PAWN_HOOK_NUMBER     5
-#include "Internal/NativeFuncImpl.hpp"
-#undef PAWN_HOOK_NUMBER
-#undef PAWN_HOOK_CALLING
-#undef PAWN_HOOK_PARAMETERS
-#undef PAWN_HOOK_TYPES
-#undef PAWN_HOOK_NAME
-#undef PAWN_HOOK_TEMPLATE
-
-#define PAWN_HOOK_TEMPLATE   typename A, typename B, typename C, typename D, typename E, typename F
-#define PAWN_HOOK_NAME       NativeFunc6
-#define PAWN_HOOK_TYPES      A, B, C, D, E, F
-#define PAWN_HOOK_PARAMETERS A a, B b, C c, D d, E e, F f
-#define PAWN_HOOK_CALLING    a, b, c, d, e, f
-#define PAWN_HOOK_NUMBER     6
-#include "Internal/NativeFuncImpl.hpp"
-#undef PAWN_HOOK_NUMBER
-#undef PAWN_HOOK_CALLING
-#undef PAWN_HOOK_PARAMETERS
-#undef PAWN_HOOK_TYPES
-#undef PAWN_HOOK_NAME
-#undef PAWN_HOOK_TEMPLATE
-
-#define PAWN_HOOK_TEMPLATE   typename A, typename B, typename C, typename D, typename E, typename F, typename G
-#define PAWN_HOOK_NAME       NativeFunc7
-#define PAWN_HOOK_TYPES      A, B, C, D, E, F, G
-#define PAWN_HOOK_PARAMETERS A a, B b, C c, D d, E e, F f, G g
-#define PAWN_HOOK_CALLING    a, b, c, d, e, f, g
-#define PAWN_HOOK_NUMBER     7
-#include "Internal/NativeFuncImpl.hpp"
-#undef PAWN_HOOK_NUMBER
-#undef PAWN_HOOK_CALLING
-#undef PAWN_HOOK_PARAMETERS
-#undef PAWN_HOOK_TYPES
-#undef PAWN_HOOK_NAME
-#undef PAWN_HOOK_TEMPLATE
-
-#define PAWN_HOOK_TEMPLATE   typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H
-#define PAWN_HOOK_NAME       NativeFunc8
-#define PAWN_HOOK_TYPES      A, B, C, D, E, F, G, H
-#define PAWN_HOOK_PARAMETERS A a, B b, C c, D d, E e, F f, G g, H h
-#define PAWN_HOOK_CALLING    a, b, c, d, e, f, g, h
-#define PAWN_HOOK_NUMBER     8
-#include "Internal/NativeFuncImpl.hpp"
-#undef PAWN_HOOK_NUMBER
-#undef PAWN_HOOK_CALLING
-#undef PAWN_HOOK_PARAMETERS
-#undef PAWN_HOOK_TYPES
-#undef PAWN_HOOK_NAME
-#undef PAWN_HOOK_TEMPLATE
-
-#define PAWN_HOOK_TEMPLATE   typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I
-#define PAWN_HOOK_NAME       NativeFunc9
-#define PAWN_HOOK_TYPES      A, B, C, D, E, F, G, H, I
-#define PAWN_HOOK_PARAMETERS A a, B b, C c, D d, E e, F f, G g, H h, I i
-#define PAWN_HOOK_CALLING    a, b, c, d, e, f, g, h, i
-#define PAWN_HOOK_NUMBER     9
-#include "Internal/NativeFuncImpl.hpp"
-#undef PAWN_HOOK_NUMBER
-#undef PAWN_HOOK_CALLING
-#undef PAWN_HOOK_PARAMETERS
-#undef PAWN_HOOK_TYPES
-#undef PAWN_HOOK_NAME
-#undef PAWN_HOOK_TEMPLATE
-
-#define PAWN_HOOK_TEMPLATE   typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I, typename J
-#define PAWN_HOOK_NAME       NativeFunc10
-#define PAWN_HOOK_TYPES      A, B, C, D, E, F, G, H, I, J
-#define PAWN_HOOK_PARAMETERS A a, B b, C c, D d, E e, F f, G g, H h, I i, J j
-#define PAWN_HOOK_CALLING    a, b, c, d, e, f, g, h, i, j
-#define PAWN_HOOK_NUMBER     10
-#include "Internal/NativeFuncImpl.hpp"
-#undef PAWN_HOOK_NUMBER
-#undef PAWN_HOOK_CALLING
-#undef PAWN_HOOK_PARAMETERS
-#undef PAWN_HOOK_TYPES
-#undef PAWN_HOOK_NAME
-#undef PAWN_HOOK_TEMPLATE
-
-#define PAWN_HOOK_TEMPLATE   typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I, typename J, typename K
-#define PAWN_HOOK_NAME       NativeFunc11
-#define PAWN_HOOK_TYPES      A, B, C, D, E, F, G, H, I, J, K
-#define PAWN_HOOK_PARAMETERS A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k
-#define PAWN_HOOK_CALLING    a, b, c, d, e, f, g, h, i, j, k
-#define PAWN_HOOK_NUMBER     11
-#include "Internal/NativeFuncImpl.hpp"
-#undef PAWN_HOOK_NUMBER
-#undef PAWN_HOOK_CALLING
-#undef PAWN_HOOK_PARAMETERS
-#undef PAWN_HOOK_TYPES
-#undef PAWN_HOOK_NAME
-#undef PAWN_HOOK_TEMPLATE
-
-#define PAWN_HOOK_TEMPLATE   typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I, typename J, typename K, typename L
-#define PAWN_HOOK_NAME       NativeFunc12
-#define PAWN_HOOK_TYPES      A, B, C, D, E, F, G, H, I, J, K, L
-#define PAWN_HOOK_PARAMETERS A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k, L l
-#define PAWN_HOOK_CALLING    a, b, c, d, e, f, g, h, i, j, k, l
-#define PAWN_HOOK_NUMBER     12
-#include "Internal/NativeFuncImpl.hpp"
-#undef PAWN_HOOK_NUMBER
-#undef PAWN_HOOK_CALLING
-#undef PAWN_HOOK_PARAMETERS
-#undef PAWN_HOOK_TYPES
-#undef PAWN_HOOK_NAME
-#undef PAWN_HOOK_TEMPLATE
-
-#define PAWN_HOOK_TEMPLATE   typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I, typename J, typename K, typename L, typename M
-#define PAWN_HOOK_NAME       NativeFunc13
-#define PAWN_HOOK_TYPES      A, B, C, D, E, F, G, H, I, J, K, L, M
-#define PAWN_HOOK_PARAMETERS A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k, L l, M m
-#define PAWN_HOOK_CALLING    a, b, c, d, e, f, g, h, i, j, k, l, m
-#define PAWN_HOOK_NUMBER     13
-#include "Internal/NativeFuncImpl.hpp"
-#undef PAWN_HOOK_NUMBER
-#undef PAWN_HOOK_CALLING
-#undef PAWN_HOOK_PARAMETERS
-#undef PAWN_HOOK_TYPES
-#undef PAWN_HOOK_NAME
-#undef PAWN_HOOK_TEMPLATE
-
-#define PAWN_HOOK_TEMPLATE   typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I, typename J, typename K, typename L, typename M, typename N
-#define PAWN_HOOK_NAME       NativeFunc14
-#define PAWN_HOOK_TYPES      A, B, C, D, E, F, G, H, I, J, K, L, M, N
-#define PAWN_HOOK_PARAMETERS A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k, L l, M m, N n
-#define PAWN_HOOK_CALLING    a, b, c, d, e, f, g, h, i, j, k, l, m, n
-#define PAWN_HOOK_NUMBER     14
-#include "Internal/NativeFuncImpl.hpp"
-#undef PAWN_HOOK_NUMBER
-#undef PAWN_HOOK_CALLING
-#undef PAWN_HOOK_PARAMETERS
-#undef PAWN_HOOK_TYPES
-#undef PAWN_HOOK_NAME
-#undef PAWN_HOOK_TEMPLATE
-
-#define PAWN_HOOK_TEMPLATE   typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I, typename J, typename K, typename L, typename M, typename N, typename O
-#define PAWN_HOOK_NAME       NativeFunc15
-#define PAWN_HOOK_TYPES      A, B, C, D, E, F, G, H, I, J, K, L, M, N, O
-#define PAWN_HOOK_PARAMETERS A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k, L l, M m, N n, O o
-#define PAWN_HOOK_CALLING    a, b, c, d, e, f, g, h, i, j, k, l, m, n, o
-#define PAWN_HOOK_NUMBER     15
-#include "Internal/NativeFuncImpl.hpp"
-#undef PAWN_HOOK_NUMBER
-#undef PAWN_HOOK_CALLING
-#undef PAWN_HOOK_PARAMETERS
-#undef PAWN_HOOK_TYPES
-#undef PAWN_HOOK_NAME
-#undef PAWN_HOOK_TEMPLATE
-
-#define PAWN_HOOK_TEMPLATE   typename A, typename B, typename C, typename D, typename E, typename F, typename G, typename H, typename I, typename J, typename K, typename L, typename M, typename N, typename O, typename P
-#define PAWN_HOOK_NAME       NativeFunc16
-#define PAWN_HOOK_TYPES      A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P
-#define PAWN_HOOK_PARAMETERS A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k, L l, M m, N n, O o, P p
-#define PAWN_HOOK_CALLING    a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p
-#define PAWN_HOOK_NUMBER     16
-#include "Internal/NativeFuncImpl.hpp"
-#undef PAWN_HOOK_NUMBER
-#undef PAWN_HOOK_CALLING
-#undef PAWN_HOOK_PARAMETERS
-#undef PAWN_HOOK_TYPES
-#undef PAWN_HOOK_NAME
-#undef PAWN_HOOK_TEMPLATE
 
 // The hooks and calls for each class are always static, because otherwise it
 // would make installing hooks MUCH harder - we would need stubs that could
@@ -404,31 +219,33 @@ namespace pawn_natives
 // normal users getting in to that data.  However, we do want them to be able to
 // use the common `IsEnabled` method, so re-export it.
 #define PAWN_NATIVE_DECL(nspace, func, type) PAWN_NATIVE_DECL_(nspace, func, type)
+
 #define PAWN_NATIVE_DECL_(nspace, func, type) \
-	PAWN_NATIVE_EXPORT PAWN_NATIVE__RETURN(type) PAWN_NATIVE_API                \
-	    PAWN_NATIVE_##nspace##_##func(PAWN_NATIVE__PARAMETERS(type));           \
+	template <typename F>                                                       \
+	class Native_##func##_ {};                                                  \
 	                                                                            \
-	namespace nspace                                                            \
+	using Native_##func = Native_##func##_<type>;                               \
+	                                                                            \
+	extern Native_##func func;													\
+	                                                                            \
+	template <typename RET, typename ... TS>                                    \
+	class Native_##func##_<RET(TS ...)> :                                       \
+	    public pawn_natives::NativeFunc<RET, TS ...>                            \
 	{                                                                           \
-	    class Native_##nspace##_##func :                                        \
-	        public pawn_natives::NativeFunc<type>                               \
+	public:                                                                     \
+	    Native_##func##_()                                                      \
+	    :                                                                       \
+	        NativeFunc<RET, TS ...>(#func, (AMX_NATIVE)&Call)                   \
 	    {                                                                       \
-	    public:                                                                 \
-	        Native_##nspace##_##func() :                                        \
-	            NativeFunc<type>(#func, (AMX_NATIVE)&Call) {}                   \
+	    }                                                                       \
 	                                                                            \
-	    private:                                                                \
-	        friend PAWN_NATIVE_DLLEXPORT PAWN_NATIVE__RETURN(type) PAWN_NATIVE_API\
-	            ::PAWN_NATIVE_##nspace##_##func(PAWN_NATIVE__PARAMETERS(type)); \
+	    RET Do(TS ...) const override;                                          \
 	                                                                            \
-	        static cell AMX_NATIVE_CALL                                         \
-	            Call(AMX * amx, cell * params);                                 \
-	                                                                            \
-	        PAWN_NATIVE__RETURN(type)                                           \
-	            Do(CAT(PAWN_NATIVE__WITHOUT_RETURN_, type)) const;              \
-	    };                                                                      \
-	                                                                            \
-	    extern Native_##nspace##_##func func;                                   \
+	private:                                                                    \
+	    static cell AMX_NATIVE_CALL Call(AMX * amx, cell * params)              \
+	    {                                                                       \
+	        return ::func.CallDoOuter(amx, params);                             \
+	    }                                                                       \
 	}
 
 // We can't pass exceptions to another module easily, so just don't...
@@ -448,27 +265,20 @@ namespace pawn_natives
 //   
 // Which means nothing.
 #define PAWN_NATIVE_DEFN(nspace, func, type) PAWN_NATIVE_DEFN_(nspace, func, type)
+
 #define PAWN_NATIVE_DEFN_(nspace, func, type) \
-	nspace::Native_##nspace##_##func nspace::func;                              \
+	Native_##func func;                                                         \
 	                                                                            \
-	cell AMX_NATIVE_CALL                                                        \
-	    nspace::Native_##nspace##_##func::Call(AMX * amx, cell * params)        \
-	{                                                                           \
-	    return ::nspace::func.CallDoOuter(amx, params);                         \
-	}                                                                           \
-	                                                                            \
-	PAWN_NATIVE_EXPORT PAWN_NATIVE__RETURN(type) PAWN_NATIVE_API                \
-	    PAWN_NATIVE_##nspace##_##func(PAWN_NATIVE__PARAMETERS(type))            \
+	template <typename RET, typename ... TS>                                    \
+	RET NATIVE_##func(TS ... args)                                              \
 	{                                                                           \
 	    try                                                                     \
 	    {                                                                       \
-	        PAWN_NATIVE__MAYBE_RETURN(type)                                     \
-	            ::nspace::func.Do(PAWN_NATIVE__CALLING(type));                  \
+	        return func.Do(args ...);                                           \
 	    }                                                                       \
 	    catch (std::exception & e)                                              \
 	    {                                                                       \
-	        char                                                                \
-	            msg[1024];                                                      \
+	        char msg[1024];                                                     \
 	        sprintf(msg, "Exception in _" #func ": \"%s\"", e.what());          \
 	        LOG_NATIVE_ERROR(msg);                                              \
 	    }                                                                       \
@@ -479,9 +289,12 @@ namespace pawn_natives
 	    PAWN_NATIVE__MAYBE_RETURN(type) {};                                     \
 	}                                                                           \
 	                                                                            \
+	PAWN_NATIVE_EXTERN template PAWN_NATIVE_DLLEXPORT PAWN_NATIVE__RETURN(type) PAWN_NATIVE_API \
+	    ::NATIVE_##func(PAWN_NATIVE__PARAMETERS(type));                         \
+	                                                                            \
 	PAWN_NATIVE__RETURN(type)                                                   \
-	    nspace::Native_##nspace##_##func::                                      \
-	    Do(CAT(PAWN_NATIVE__WITHOUT_RETURN_, type)) const
+	    Native_##func::                                                         \
+	    Do(PAWN_NATIVE__PARAMETERS(type)) const
 
 #define PAWN_NATIVE_DECLARE PAWN_NATIVE_DECL
 #define PAWN_NATIVE_DEFINE  PAWN_NATIVE_DEFN

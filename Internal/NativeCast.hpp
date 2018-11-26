@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 #include <amx/amx.h>
+#include <array>
 
 namespace pawn_natives
 {
@@ -464,6 +465,107 @@ namespace pawn_natives
 	private:
 		std::string
 			value_;
+	};
+
+	template <size_t N, typename ... TS>
+	struct ParamArray {};
+
+	template <size_t N, typename T, typename ... TS>
+	struct ParamArray<N, T, TS ...>
+	{
+		template <typename ... NS>
+		static inline constexpr auto Indexes(NS ... vs)
+		{
+			return ParamArray<N - 1, TS ...>::Indexes(N - 1, vs ...);
+		}
+
+		template <typename ... NS>
+		static inline constexpr auto Prefixes(size_t prev, NS ... vs)
+		{
+			return ParamArray<N - 1, TS ...>::Prefixes(prev + ParamCast<T>::Size, vs ..., prev);
+		}
+
+		template <class F, typename ... NS>
+		static inline auto Call(F that, AMX * amx, cell * params, size_t prev, NS ... vs)
+		{
+			return ParamArray<N - 1, TS ...>::Call(that, amx, params, prev + ParamCast<T>::Size, vs ..., ParamCast<T>(amx, params, prev));
+		}
+	};
+
+	template <>
+	struct ParamArray<0>
+	{
+		template <typename ... NS>
+		static inline constexpr auto Indexes(NS ... vs)
+		{
+			return std::array<size_t, sizeof... (vs)>{vs ...};
+		}
+
+		template <typename ... NS>
+		static inline constexpr auto Prefixes(size_t, NS ... vs)
+		{
+			return std::array<size_t, sizeof... (vs)>{vs ...};
+		}
+
+		template <class F, typename ... NS>
+		static inline auto Call(F that, AMX * amx, cell * params, size_t prev, NS ... vs)
+		{
+			return that->Do(vs ...);
+		}
+	};
+
+	template <typename ... TS>
+	struct ParamData {};
+
+	template <typename T, typename ... TS>
+	struct ParamData<T, TS ...>
+	{
+		static inline constexpr int Sum()
+		{
+			return ParamCast<T>::Size + ParamData<TS ...>::Sum();
+			//return 0 + ... + ParamCast<TS>::Size;
+		}
+
+		static inline constexpr auto Indexes()
+		{
+			return ParamArray<sizeof... (TS) + 1, T, TS ...>::Indexes();
+		}
+
+		static inline constexpr auto Prefixes()
+		{
+			return ParamArray<sizeof... (TS) + 1, T, TS ...>::Prefixes(0);
+		}
+
+		template <class F>
+		static inline auto Call(F that, AMX * amx, cell * params)
+		{
+			return ParamArray<sizeof... (TS) + 1, T, TS ...>::Call(that, amx, params, 1);
+		}
+	};
+
+	template <>
+	struct ParamData<>
+	{
+		static inline constexpr int Sum()
+		{
+			return 0;
+		}
+
+		static constexpr auto Indexes()
+		{
+			return ::std::array<size_t, 0>();
+		}
+
+		static inline constexpr auto Prefixes()
+		{
+			return ::std::array<size_t, 0>();
+		}
+
+		template <class F>
+		static inline auto Call(F that, AMX *, cell *)
+		{
+			return that->Do();
+		}
 	};
 };
 

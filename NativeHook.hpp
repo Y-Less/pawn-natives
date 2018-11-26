@@ -604,7 +604,7 @@ namespace pawn_natives
 #define PAWN_HOOK_DECL(nspace, func, type) PAWN_HOOK_DECL_(nspace, func, type)
 #define PAWN_HOOK_DECL_(nspace, func, type) \
 	PAWN_NATIVE_EXPORT PAWN_NATIVE__RETURN(type) PAWN_NATIVE_API                \
-	    PAWN_NATIVE_##nspace##_##func(PAWN_NATIVE__PARAMETERS(type));           \
+	    PAWN_NATIVE_##nspace##_##func(PAWN_NATIVE__NAMED(type));                \
 	                                                                            \
 	namespace nspace                                                            \
 	{                                                                           \
@@ -619,7 +619,7 @@ namespace pawn_natives
 	                                                                            \
 	    private:                                                                \
 	        friend PAWN_NATIVE_DLLEXPORT PAWN_NATIVE__RETURN(type) PAWN_NATIVE_API\
-	            ::PAWN_NATIVE_##nspace##_##func(PAWN_NATIVE__PARAMETERS(type)); \
+	            ::PAWN_NATIVE_##nspace##_##func(PAWN_NATIVE__NAMED(type));      \
 	                                                                            \
 	        static cell AMX_NATIVE_CALL                                         \
 	            Call(AMX * amx, cell * params);                                 \
@@ -658,7 +658,7 @@ namespace pawn_natives
 	}                                                                           \
 	                                                                            \
 	PAWN_NATIVE_EXPORT PAWN_NATIVE__RETURN(type) PAWN_NATIVE_API                \
-	    PAWN_NATIVE_##nspace##_##func(PAWN_NATIVE__PARAMETERS(type))            \
+	    PAWN_NATIVE_##nspace##_##func(PAWN_NATIVE__NAMED(type))                 \
 	{                                                                           \
 	    try                                                                     \
 	    {                                                                       \
