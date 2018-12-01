@@ -122,7 +122,7 @@ namespace pawn_natives
 			return Do(args ...);
 		}
 
-		virtual RET Do(TS ...) const = 0;
+		virtual RET Do(typename ParamCast<TS>::type ...) const = 0;
 
 	protected:
 		NativeFunc(char const * const name, AMX_NATIVE native) : NativeFuncBase(ParamData<TS ...>::Sum(), name, native) {}
@@ -147,7 +147,7 @@ namespace pawn_natives
 			Do(args ...);
 		}
 
-		virtual void Do(TS ...) const = 0;
+		virtual void Do(typename ParamCast<TS>::type ...) const = 0;
 
 	protected:
 		NativeFunc(char const * const name, AMX_NATIVE native) : NativeFuncBase(ParamData<TS ...>::Sum(), name, native) {}
@@ -218,13 +218,13 @@ namespace pawn_natives
 // The inheritance from `NativeFuncBase` is protected, because we don't want
 // normal users getting in to that data.  However, we do want them to be able to
 // use the common `IsEnabled` method, so re-export it.
-#define PAWN_NATIVE_DECL(nspace, func, type) PAWN_NATIVE_DECL_(nspace, func, type)
+#define PAWN_NATIVE_DECL(nspace, func, types) PAWN_NATIVE_DECL_(nspace, func, types)
 
-#define PAWN_NATIVE_DECL_(nspace, func, type) \
+#define PAWN_NATIVE_DECL_(nspace, func, types) \
 	template <typename F>                                                       \
 	class Native_##func##_ {};                                                  \
 	                                                                            \
-	using Native_##func = Native_##func##_<type>;                               \
+	using Native_##func = Native_##func##_<types>;                              \
 	                                                                            \
 	extern Native_##func func;													\
 	                                                                            \
@@ -239,7 +239,7 @@ namespace pawn_natives
 	    {                                                                       \
 	    }                                                                       \
 	                                                                            \
-	    RET Do(TS ...) const override;                                          \
+	    RET Do(typename pawn_natives::ParamCast<TS>::type ...) const override;  \
 	                                                                            \
 	private:                                                                    \
 	    static cell AMX_NATIVE_CALL Call(AMX * amx, cell * params)              \
@@ -264,13 +264,13 @@ namespace pawn_natives
 //   {};
 //   
 // Which means nothing.
-#define PAWN_NATIVE_DEFN(nspace, func, type) PAWN_NATIVE_DEFN_(nspace, func, type)
+#define PAWN_NATIVE_DEFN(nspace, func, types) PAWN_NATIVE_DEFN_(nspace, func, types)
 
-#define PAWN_NATIVE_DEFN_(nspace, func, type) \
+#define PAWN_NATIVE_DEFN_(nspace, func, types) \
 	Native_##func func;                                                         \
 	                                                                            \
 	template <typename RET, typename ... TS>                                    \
-	RET NATIVE_##func(TS ... args)                                              \
+	RET NATIVE_##func(typename pawn_natives::ParamCast<TS>::type ... args)      \
 	{                                                                           \
 	    try                                                                     \
 	    {                                                                       \
@@ -286,20 +286,20 @@ namespace pawn_natives
 	    {                                                                       \
 	        LOG_NATIVE_ERROR("Unknown exception in _" #func);                   \
 	    }                                                                       \
-	    PAWN_NATIVE__MAYBE_RETURN(type) {};                                     \
+	    PAWN_NATIVE__MAYBE_RETURN(types) {};                                    \
 	}                                                                           \
 	                                                                            \
-	PAWN_NATIVE_EXTERN template PAWN_NATIVE_DLLEXPORT PAWN_NATIVE__RETURN(type) PAWN_NATIVE_API \
-	    ::NATIVE_##func(PAWN_NATIVE__PARAMETERS(type));                         \
+	PAWN_NATIVE_EXTERN template PAWN_NATIVE_DLLEXPORT PAWN_NATIVE__RETURN(types) PAWN_NATIVE_API \
+	    ::NATIVE_##func(PAWN_NATIVE__PARAMETERS(types));                        \
 	                                                                            \
-	PAWN_NATIVE__RETURN(type)                                                   \
+	PAWN_NATIVE__RETURN(types)                                                  \
 	    Native_##func::                                                         \
-	    Do(PAWN_NATIVE__PARAMETERS(type)) const
+	    Do(PAWN_NATIVE__PARAMETERS(types)) const
 
 #define PAWN_NATIVE_DECLARE PAWN_NATIVE_DECL
 #define PAWN_NATIVE_DEFINE  PAWN_NATIVE_DEFN
 
-#define PAWN_NATIVE(nspace, func, type) PAWN_NATIVE_DECL_(nspace, func, type); PAWN_NATIVE_DEFN_(nspace, func, type)
+#define PAWN_NATIVE(nspace, func, types) PAWN_NATIVE_DECL_(nspace, func, types); PAWN_NATIVE_DEFN_(nspace, func, types)
 
 #if 0
 
