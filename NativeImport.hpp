@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdexcept>
+#include <new>
 #include <amx/amx.h>
 
 #if defined __cplusplus
