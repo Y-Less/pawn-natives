@@ -263,115 +263,33 @@ namespace pawn_natives
 			value_;
 	};
 
+	// Use `string *`.
 	template <>
 	class ParamCast<char *>
 	{
 	public:
-		ParamCast(AMX * amx, cell * params, int idx)
-			:
-			fake_('\0'),
-			len_((int)params[idx + 1])
-		{
-			// Can't use `amx_StrParam` here, it allocates on the stack.  This
-			// code wraps a lot of `sampgdk`, which fortunately is entirely
-			// const-correct so we don't need to worry about strings not being
-			// copied incorrectly.  We can also make the assumption that any
-			// string is immediately followed by its length when it is an
-			// output.
-			if (len_ < 0)
-				throw std::length_error("Invalid string length.");
-			if (len_)
-			{
-				amx_GetAddr(amx, params[idx], &addr_);
-				value_ = (char *)malloc(len_);
-				if (!value_)
-					throw std::bad_alloc();
-				//amx_GetString(value_, addr_, 0, len_);
-			}
-			else
-				value_ = &fake_;
-		}
-
-		~ParamCast()
-		{
-			// This is the only version that actually needs to write data back.
-			if (len_)
-				amx_SetString(addr_, value_, 0, 0, len_);
-			free(value_);
-		}
-
-		operator char *()
-		{
-			return value_;
-		}
-
-		static constexpr int Size = 1;
-
-	private:
-		int
-			len_;
-
-		cell *
-			addr_;
-
-		char *
-			value_;
-
-		char
-			fake_;
+		ParamCast(AMX * amx, cell * params, int idx) = delete;
 	};
 
+	// Use `string const &`.
 	template <>
 	class ParamCast<char const *>
 	{
 	public:
-		ParamCast(AMX * amx, cell * params, int idx)
-			:
-			fake_('\0')
-		{
-			// Can't use `amx_StrParam` here, it allocates on the stack.  This
-			// `const` version is not optional at all - it ensures that the
-			// string data is NOT written back.
-			cell *
-				addr;
-			int
-				len;
-			amx_GetAddr(amx, params[idx], &addr);
-			amx_StrLen(addr, &len);
-			if (len)
-			{
-				value_ = (char *)malloc(len + 1);
-				if (!value_)
-					throw std::bad_alloc();
-				amx_GetString(value_, addr, 0, len + 1);
-			}
-			else
-				value_ = &fake_;
-		}
+		ParamCast(AMX * amx, cell * params, int idx) = delete;
+	};
 
-		~ParamCast()
-		{
-			// Some versions may need to write data back here, but not this one.
-			free(value_);
-		}
-
-		operator char const *()
-		{
-			return value_;
-		}
-
-		static constexpr int Size = 1;
-
-	private:
-		char *
-			value_;
-
-		char
-			fake_;
+	// `string &` doesn't exist any more.  If it is a return value, the convention
+	// is to use `string *`.  If it is an input, use `string const &`.
+	template <>
+	class ParamCast<std::string &>
+	{
+	public:
+		ParamCast(AMX * amx, cell * params, int idx) = delete;
 	};
 
 	template <>
-	class ParamCast<std::string &>
+	class ParamCast<std::string *>
 	{
 	public:
 		ParamCast(AMX * amx, cell * params, int idx)
@@ -405,9 +323,9 @@ namespace pawn_natives
 				amx_SetString(addr_, value_.c_str(), 0, 0, len_);
 		}
 
-		operator std::string &()
+		operator std::string *()
 		{
-			return value_;
+			return &value_;
 		}
 
 		static constexpr int Size = 2;
