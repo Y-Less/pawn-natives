@@ -410,7 +410,7 @@ namespace pawn_natives
 			return value_;
 		}
 
-		static constexpr int Size = 1;
+		static constexpr int Size = 2;
 
 	private:
 		int
