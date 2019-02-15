@@ -3,6 +3,13 @@
 #include <stdexcept>
 #include <amx/amx.h>
 
+// This is in the global namespace, not the pawn_natives namespace.  It
+// completely extends the class as transparently as I can make it.
+template <typename T>
+struct DI : public T
+{
+};
+
 namespace pawn_natives
 {
 	// This is for any casts that can't go on, but where this is somewhat expected.  For example, a
@@ -439,6 +446,66 @@ namespace pawn_natives
 		{
 			return that->Do();
 		}
+	};
+
+	template <typename T>
+	class ParamCast<DI<T *>>
+	{
+	public:
+		ParamCast(AMX *, cell *, int) = delete;
+		ParamCast() = delete;
+	};
+
+	template <typename T>
+	class ParamCast<DI<T>>
+	{
+	public:
+		ParamCast(AMX *, cell *, int) = delete;
+		ParamCast() = delete;
+	};
+
+	template <typename T>
+	class ParamCast<DI<T> &>
+	{
+	public:
+		ParamCast(AMX *, cell *, int)
+		{
+		}
+
+		~ParamCast()
+		{
+		}
+
+		operator DI<T> &()
+		{
+			return static_cast<DI<T> &>(T::Instance());
+		}
+
+		static constexpr int Size = 0;
+
+		using type = T & ;
+	};
+
+	template <typename T>
+	class ParamCast<DI<T> const &>
+	{
+	public:
+		ParamCast(AMX *, cell *, int)
+		{
+		}
+
+		~ParamCast()
+		{
+		}
+
+		operator DI<T> const &()
+		{
+			return static_cast<DI<T> const &>(T::Instance());
+		}
+
+		static constexpr int Size = 0;
+
+		using type = T const &;
 	};
 };
 

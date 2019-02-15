@@ -248,6 +248,9 @@ namespace pawn_natives
 	    }                                                                       \
 	}
 
+//	    using namespace ::pawn_natives::detail;
+//	    RET Do(typename UnDI<TS>::type_t ...) const override;
+
 // We can't pass exceptions to another module easily, so just don't...
 // 
 // I quite like this:
