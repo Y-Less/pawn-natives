@@ -27,7 +27,7 @@ namespace pawn_natives
 		explicit ParamCastError() : ::std::invalid_argument("ParamCast had an exception.") {}
 	};
 
-	template <typename T>
+	template <typename T, typename = void>
 	struct ParamLookup
 	{
 		static T Val(cell ref)
