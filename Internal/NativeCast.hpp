@@ -10,6 +10,13 @@ struct DI : public T
 {
 };
 
+// This is in the global namespace, not the pawn_natives namespace.  It
+// completely extends the class as transparently as I can make it.
+template <typename T, size_t N>
+struct ARG : public T
+{
+};
+
 namespace pawn_natives
 {
 	// This is for any casts that can't go on, but where this is somewhat expected.  For example, a
@@ -448,8 +455,19 @@ namespace pawn_natives
 		}
 	};
 
+	/*
+	    88888888ba,    88                             
+	    88      `"8b   88                             
+	    88        `8b  88                             
+	    88         88  88                             
+	    88         88  88                             
+	    88         8P  88                             
+	    88      .a8P   88                             
+	    88888888Y"'    88                             
+	*/
+
 	template <typename T>
-	class ParamCast<DI<T *>>
+	class ParamCast<DI<T> *>
 	{
 	public:
 		ParamCast(AMX *, cell *, int) = delete;
@@ -506,6 +524,127 @@ namespace pawn_natives
 		static constexpr int Size = 0;
 
 		using type = T const &;
+	};
+
+	/*
+	           db         88888888ba     ,ad8888ba,   
+	          d88b        88      "8b   d8"'    `"8b  
+	         d8'`8b       88      ,8P  d8'            
+	        d8'  `8b      88aaaaaa8P'  88             
+	       d8YaaaaY8b     88""""88'    88      88888  
+	      d8""""""""8b    88    `8b    Y8,        88  
+	     d8'        `8b   88     `8b    Y8a.    .a88  
+	    d8'          `8b  88      `8b    `"Y88888P"   
+	*/
+
+	template <typename T, size_t N>
+	class ParamCast<ARG<T, N>> : private ParamCast<T>
+	{
+	public:
+		ParamCast(AMX * amx, cell * params, int)
+		:
+			ParamCast<T>(amx, cell, N)
+		{
+		}
+
+		~ParamCast()
+		{
+		}
+
+		operator ARG<T, N>()
+		{
+			return static_cast<ARG<T, N>>(ParamCast<T>::operator()());
+		}
+
+		static constexpr int Size = 0;
+	};
+
+	template <typename T, size_t N>
+	class ParamCast<ARG<T, N> const> : private ParamCast<T const>
+	{
+	public:
+		ParamCast(AMX * amx, cell * params, int)
+		:
+			ParamCast<T>(amx, cell, N)
+		{
+		}
+
+		~ParamCast()
+		{
+		}
+
+		operator ARG<T, N> const()
+		{
+			return static_cast<ARG<T, N> const>(ParamCast<T const>::operator()());
+		}
+
+		static constexpr int Size = 0;
+	};
+
+	template <typename T, size_t N>
+	class ParamCast<ARG<T, N> *> : private ParamCast<T *>
+	{
+	public:
+		ParamCast(AMX * amx, cell * params, int)
+		:
+			ParamCast<T>(amx, cell, N)
+		{
+		}
+
+		~ParamCast()
+		{
+		}
+
+		operator ARG<T, N> *()
+		{
+			return static_cast<ARG<T, N> *>(ParamCast<T *>::operator()());
+		}
+
+		static constexpr int Size = 0;
+	};
+
+	template <typename T, size_t N>
+	class ParamCast<ARG<T, N> &> : private ParamCast<T &>
+	{
+	public:
+		ParamCast(AMX * amx, cell * params, int)
+		:
+			ParamCast<T>(amx, cell, N)
+		{
+		}
+
+		~ParamCast()
+		{
+		}
+
+		operator ARG<T, N> &()
+		{
+			return static_cast<ARG<T, N> &>(ParamCast<T &>::operator()());
+		}
+
+		static constexpr int Size = 0;
+	};
+
+	template <typename T, size_t N>
+	class ParamCast<ARG<T, N> const *> : private ParamCast<T const *>
+	{
+	public:
+		ParamCast(AMX * amx, cell * params, int)
+		:
+			ParamCast<T>(amx, cell, N)
+		{
+		}
+
+		~ParamCast()
+		{
+		}
+
+		operator ARG<T, N> const *()
+		{
+			return static_cast<ARG<T, N> const *>(ParamCast<T const *>::operator()());
+		}
+
+		static constexpr int Size = 0;
 	};
 };
 
