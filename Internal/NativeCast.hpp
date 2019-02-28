@@ -543,7 +543,7 @@ namespace pawn_natives
 	public:
 		ParamCast(AMX * amx, cell * params, int)
 		:
-			ParamCast<T>(amx, cell, N)
+			ParamCast<T>(amx, params, N + 1)
 		{
 		}
 
@@ -553,7 +553,7 @@ namespace pawn_natives
 
 		operator ARG<T, N>()
 		{
-			return static_cast<ARG<T, N>>(ParamCast<T>::operator()());
+			return static_cast<ARG<T, N>>((T)*this);
 		}
 
 		static constexpr int Size = 0;
@@ -565,7 +565,7 @@ namespace pawn_natives
 	public:
 		ParamCast(AMX * amx, cell * params, int)
 		:
-			ParamCast<T>(amx, cell, N)
+			ParamCast<T const>(amx, params, N + 1)
 		{
 		}
 
@@ -575,7 +575,7 @@ namespace pawn_natives
 
 		operator ARG<T, N> const()
 		{
-			return static_cast<ARG<T, N> const>(ParamCast<T const>::operator()());
+			return static_cast<ARG<T, N> const>((T const)*this);
 		}
 
 		static constexpr int Size = 0;
@@ -587,7 +587,7 @@ namespace pawn_natives
 	public:
 		ParamCast(AMX * amx, cell * params, int)
 		:
-			ParamCast<T>(amx, cell, N)
+			ParamCast<T *>(amx, params, N + 1)
 		{
 		}
 
@@ -597,7 +597,7 @@ namespace pawn_natives
 
 		operator ARG<T, N> *()
 		{
-			return static_cast<ARG<T, N> *>(ParamCast<T *>::operator()());
+			return static_cast<ARG<T, N> *>((T *)*this);
 		}
 
 		static constexpr int Size = 0;
@@ -609,7 +609,7 @@ namespace pawn_natives
 	public:
 		ParamCast(AMX * amx, cell * params, int)
 		:
-			ParamCast<T>(amx, cell, N)
+			ParamCast<T &>(amx, params, N + 1)
 		{
 		}
 
@@ -619,7 +619,7 @@ namespace pawn_natives
 
 		operator ARG<T, N> &()
 		{
-			return static_cast<ARG<T, N> &>(ParamCast<T &>::operator()());
+			return static_cast<ARG<T, N> &>((T &)*this);
 		}
 
 		static constexpr int Size = 0;
@@ -631,7 +631,7 @@ namespace pawn_natives
 	public:
 		ParamCast(AMX * amx, cell * params, int)
 		:
-			ParamCast<T>(amx, cell, N)
+			ParamCast<T const *>(amx, params, N + 1)
 		{
 		}
 
@@ -641,7 +641,7 @@ namespace pawn_natives
 
 		operator ARG<T, N> const *()
 		{
-			return static_cast<ARG<T, N> const *>(ParamCast<T const *>::operator()());
+			return static_cast<ARG<T, N> const *>((T const *)*this);
 		}
 
 		static constexpr int Size = 0;
