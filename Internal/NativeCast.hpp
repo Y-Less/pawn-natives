@@ -48,6 +48,11 @@ namespace pawn_natives
 		}
 	};
 
+	template <typename T, typename = void>
+	struct ParamInject
+	{
+	};
+
 	template <>
 	struct ParamLookup<float>
 	{
@@ -496,7 +501,7 @@ namespace pawn_natives
 
 		operator DI<T> &()
 		{
-			return static_cast<DI<T> &>(T::Instance());
+			return static_cast<DI<T> &>(ParamInject<T>::Get());
 		}
 
 		static constexpr int Size = 0;
@@ -518,7 +523,7 @@ namespace pawn_natives
 
 		operator DI<T> const &()
 		{
-			return static_cast<DI<T> const &>(T::Instance());
+			return static_cast<DI<T> const &>(ParamInject<T>::Get());
 		}
 
 		static constexpr int Size = 0;
