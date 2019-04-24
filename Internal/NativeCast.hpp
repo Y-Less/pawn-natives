@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdexcept>
+#include <string>
 #include <amx/amx.h>
 
 // This is in the global namespace, not the pawn_natives namespace.  It

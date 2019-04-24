@@ -235,7 +235,7 @@ namespace pawn_natives
 	public:                                                                     \
 	    Native_##func##_()                                                      \
 	    :                                                                       \
-	        NativeFunc<RET, TS ...>(#func, (AMX_NATIVE)&Call)                   \
+	        pawn_natives::NativeFunc<RET, TS ...>(#func, (AMX_NATIVE)&Call)     \
 	    {                                                                       \
 	    }                                                                       \
 	                                                                            \
@@ -272,6 +272,11 @@ namespace pawn_natives
 #define PAWN_NATIVE_DEFN_(nspace, func, type) \
 	Native_##func func;                                                         \
 	                                                                            \
+	template <>														            \
+	PAWN_NATIVE__RETURN(type)                                                   \
+	    Native_##func::                                                         \
+	    Do(PAWN_NATIVE__PARAMETERS(type)) const;                                \
+		                                                                        \
 	template <typename RET, typename ... TS>                                    \
 	RET NATIVE_##func(TS ... args)                                              \
 	{                                                                           \
@@ -293,8 +298,9 @@ namespace pawn_natives
 	}                                                                           \
 	                                                                            \
 	PAWN_NATIVE_EXTERN template PAWN_NATIVE_DLLEXPORT PAWN_NATIVE__RETURN(type) PAWN_NATIVE_API \
-	    ::NATIVE_##func(PAWN_NATIVE__PARAMETERS(type));                         \
+	    NATIVE_##func(PAWN_NATIVE__PARAMETERS(type));                           \
 	                                                                            \
+	template <>														            \
 	PAWN_NATIVE__RETURN(type)                                                   \
 	    Native_##func::                                                         \
 	    Do(PAWN_NATIVE__PARAMETERS(type)) const
