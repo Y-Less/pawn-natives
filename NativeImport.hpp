@@ -94,23 +94,29 @@ namespace pawn_natives
 
 #define PAWN_NATIVE__TYPE(tt) typename ::pawn_natives::TypeResolver<void(tt)>::type
 
-#define PAWN_NATIVE__WITHOUT_PARAMS_int(...)   int
-#define PAWN_NATIVE__WITHOUT_PARAMS_float(...) float
-#define PAWN_NATIVE__WITHOUT_PARAMS_bool(...)  bool
-#define PAWN_NATIVE__WITHOUT_PARAMS_void(...)  void
-#define PAWN_NATIVE__WITHOUT_PARAMS_cell(...)  cell
+#define PAWN_NATIVE__WITHOUT_PARAMS_size_t(...)   size_t
+#define PAWN_NATIVE__WITHOUT_PARAMS_unsigned(...) unsigned
+#define PAWN_NATIVE__WITHOUT_PARAMS_int(...)      int
+#define PAWN_NATIVE__WITHOUT_PARAMS_float(...)    float
+#define PAWN_NATIVE__WITHOUT_PARAMS_bool(...)     bool
+#define PAWN_NATIVE__WITHOUT_PARAMS_void(...)     void
+#define PAWN_NATIVE__WITHOUT_PARAMS_cell(...)     cell
 
-#define PAWN_NATIVE__WITHOUT_RETURN_int(...)   __VA_ARGS__
-#define PAWN_NATIVE__WITHOUT_RETURN_float(...) __VA_ARGS__
-#define PAWN_NATIVE__WITHOUT_RETURN_bool(...)  __VA_ARGS__
-#define PAWN_NATIVE__WITHOUT_RETURN_void(...)  __VA_ARGS__
-#define PAWN_NATIVE__WITHOUT_RETURN_cell(...)  __VA_ARGS__
+#define PAWN_NATIVE__WITHOUT_RETURN_size_t(...)   __VA_ARGS__
+#define PAWN_NATIVE__WITHOUT_RETURN_unsigned(...) __VA_ARGS__
+#define PAWN_NATIVE__WITHOUT_RETURN_int(...)      __VA_ARGS__
+#define PAWN_NATIVE__WITHOUT_RETURN_float(...)    __VA_ARGS__
+#define PAWN_NATIVE__WITHOUT_RETURN_bool(...)     __VA_ARGS__
+#define PAWN_NATIVE__WITHOUT_RETURN_void(...)     __VA_ARGS__
+#define PAWN_NATIVE__WITHOUT_RETURN_cell(...)     __VA_ARGS__
 
-#define PAWN_NATIVE__MAYBE_RETURN_int(...)   return
-#define PAWN_NATIVE__MAYBE_RETURN_float(...) return
-#define PAWN_NATIVE__MAYBE_RETURN_bool(...)  return
+#define PAWN_NATIVE__MAYBE_RETURN_size_t(...)   return
+#define PAWN_NATIVE__MAYBE_RETURN_unsigned(...) return
+#define PAWN_NATIVE__MAYBE_RETURN_int(...)      return
+#define PAWN_NATIVE__MAYBE_RETURN_float(...)    return
+#define PAWN_NATIVE__MAYBE_RETURN_bool(...)     return
 #define PAWN_NATIVE__MAYBE_RETURN_void(...)  
-#define PAWN_NATIVE__MAYBE_RETURN_cell(...)  return
+#define PAWN_NATIVE__MAYBE_RETURN_cell(...)     return
 
 #ifdef _MSC_VER
 	#define PAWN_NATIVE__NUM_ARGS(...)  PAWN_NATIVE__NUM_ARGS_(PAWN_NATIVE__NUM_ARGS_MSVC(__VA_ARGS__))
