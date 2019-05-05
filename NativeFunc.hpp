@@ -282,7 +282,7 @@ namespace pawn_natives
 	{                                                                           \
 	    try                                                                     \
 	    {                                                                       \
-	        PAWN_NATIVE__MAYBE_GET_AND_RETURN(params)(func.Do(args ...));       \
+	        return PAWN_NATIVE__MAYBE_GET(params)(func.Do(args ...));           \
 	    }                                                                       \
 	    catch (std::exception & e)                                              \
 	    {                                                                       \

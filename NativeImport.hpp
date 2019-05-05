@@ -196,14 +196,14 @@ namespace pawn_natives
 #define PAWN_NATIVE__MAYBE_RETURN_cell(...)     return
 #define PAWN_NATIVE__MAYBE_RETURN_id(...)       return
 
-#define PAWN_NATIVE__MAYBE_GET_size_t(...)   return pawn_natives::ReturnResolver<RET>::Get
-#define PAWN_NATIVE__MAYBE_GET_unsigned(...) return pawn_natives::ReturnResolver<RET>::Get
-#define PAWN_NATIVE__MAYBE_GET_int(...)      return pawn_natives::ReturnResolver<RET>::Get
-#define PAWN_NATIVE__MAYBE_GET_float(...)    return pawn_natives::ReturnResolver<RET>::Get
-#define PAWN_NATIVE__MAYBE_GET_bool(...)     return pawn_natives::ReturnResolver<RET>::Get
-#define PAWN_NATIVE__MAYBE_GET_void(...)     return // Return a void return (i.e. nothing).
-#define PAWN_NATIVE__MAYBE_GET_cell(...)     return pawn_natives::ReturnResolver<RET>::Get
-#define PAWN_NATIVE__MAYBE_GET_id(...)       return pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__MAYBE_GET_size_t(...)   pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__MAYBE_GET_unsigned(...) pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__MAYBE_GET_int(...)      pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__MAYBE_GET_float(...)    pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__MAYBE_GET_bool(...)     pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__MAYBE_GET_void(...)
+#define PAWN_NATIVE__MAYBE_GET_cell(...)     pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__MAYBE_GET_id(...)       pawn_natives::ReturnResolver<RET>::Get
 
 #ifdef _MSC_VER
 	#define PAWN_NATIVE__NUM_ARGS(...)  PAWN_NATIVE__NUM_ARGS_(PAWN_NATIVE__NUM_ARGS_MSVC(__VA_ARGS__))
@@ -309,7 +309,7 @@ namespace pawn_natives
 
 #define PAWN_NATIVE__RETURN(params) PAWN_NATIVE__WITHOUT_PARAMS_##params
 #define PAWN_NATIVE__MAYBE_RETURN(params) PAWN_NATIVE__MAYBE_RETURN_##params
-#define PAWN_NATIVE__MAYBE_GET_AND_RETURN(params) PAWN_NATIVE__MAYBE_GET_##params
+#define PAWN_NATIVE__MAYBE_GET(params) PAWN_NATIVE__MAYBE_GET_##params
 
 // Import a native from another plugin.
 #define PAWN_IMPORT(nspace, func, type) PAWN_IMPORT_(nspace, func, type)
