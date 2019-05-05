@@ -90,7 +90,82 @@ namespace pawn_natives
 		int     const Count;
 		cell ** const Params;
 	} * varargs_t;
+
+	class ID32Provider
+	{
+	public:
+		virtual uint32_t ID() const = 0;
+	};
+
+	class ID16Provider
+	{
+	public:
+		virtual uint16_t ID() const = 0;
+	};
+
+	class ID8Provider
+	{
+	public:
+		virtual uint8_t ID() const = 0;
+	};
+
+	template <typename T>
+	class ReturnResolver
+	{
+	public:
+		typedef T type;
+
+		static type Get(T x)
+		{
+			return x;
+		}
+	};
+
+	template <>
+	class ReturnResolver<void>
+	{
+	public:
+		typedef void type;
+	};
+
+	template <>
+	class ReturnResolver<ID32Provider const &>
+	{
+	public:
+		typedef uint32_t type;
+
+		static type Get(ID32Provider const & x)
+		{
+			return x.ID();
+		}
+	};
+
+	template <>
+	class ReturnResolver<ID16Provider const &>
+	{
+	public:
+		typedef uint16_t type;
+
+		static type Get(ID16Provider const & x)
+		{
+			return x.ID();
+		}
+	};
+
+	template <>
+	class ReturnResolver<ID8Provider const &>
+	{
+	public:
+		typedef uint8_t type;
+
+		static type Get(ID8Provider const & x)
+		{
+			return x.ID();
+		}
+	};
 };
+
+//typedef pawn_natives::IDProvider const & id;
 
 #define PAWN_NATIVE__TYPE(tt) typename ::pawn_natives::TypeResolver<void(tt)>::type
 
@@ -101,6 +176,7 @@ namespace pawn_natives
 #define PAWN_NATIVE__WITHOUT_PARAMS_bool(...)     bool
 #define PAWN_NATIVE__WITHOUT_PARAMS_void(...)     void
 #define PAWN_NATIVE__WITHOUT_PARAMS_cell(...)     cell
+#define PAWN_NATIVE__WITHOUT_PARAMS_id(...)       id
 
 #define PAWN_NATIVE__WITHOUT_RETURN_size_t(...)   __VA_ARGS__
 #define PAWN_NATIVE__WITHOUT_RETURN_unsigned(...) __VA_ARGS__
@@ -109,7 +185,8 @@ namespace pawn_natives
 #define PAWN_NATIVE__WITHOUT_RETURN_bool(...)     __VA_ARGS__
 #define PAWN_NATIVE__WITHOUT_RETURN_void(...)     __VA_ARGS__
 #define PAWN_NATIVE__WITHOUT_RETURN_cell(...)     __VA_ARGS__
-
+#define PAWN_NATIVE__WITHOUT_RETURN_id(...)       __VA_ARGS__
+ 
 #define PAWN_NATIVE__MAYBE_RETURN_size_t(...)   return
 #define PAWN_NATIVE__MAYBE_RETURN_unsigned(...) return
 #define PAWN_NATIVE__MAYBE_RETURN_int(...)      return
@@ -117,6 +194,16 @@ namespace pawn_natives
 #define PAWN_NATIVE__MAYBE_RETURN_bool(...)     return
 #define PAWN_NATIVE__MAYBE_RETURN_void(...)  
 #define PAWN_NATIVE__MAYBE_RETURN_cell(...)     return
+#define PAWN_NATIVE__MAYBE_RETURN_id(...)       return
+
+#define PAWN_NATIVE__MAYBE_GET_size_t(...)   return pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__MAYBE_GET_unsigned(...) return pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__MAYBE_GET_int(...)      return pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__MAYBE_GET_float(...)    return pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__MAYBE_GET_bool(...)     return pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__MAYBE_GET_void(...)     return // Return a void return (i.e. nothing).
+#define PAWN_NATIVE__MAYBE_GET_cell(...)     return pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__MAYBE_GET_id(...)       return pawn_natives::ReturnResolver<RET>::Get
 
 #ifdef _MSC_VER
 	#define PAWN_NATIVE__NUM_ARGS(...)  PAWN_NATIVE__NUM_ARGS_(PAWN_NATIVE__NUM_ARGS_MSVC(__VA_ARGS__))
@@ -222,6 +309,7 @@ namespace pawn_natives
 
 #define PAWN_NATIVE__RETURN(params) PAWN_NATIVE__WITHOUT_PARAMS_##params
 #define PAWN_NATIVE__MAYBE_RETURN(params) PAWN_NATIVE__MAYBE_RETURN_##params
+#define PAWN_NATIVE__MAYBE_GET_AND_RETURN(params) PAWN_NATIVE__MAYBE_GET_##params
 
 // Import a native from another plugin.
 #define PAWN_IMPORT(nspace, func, type) PAWN_IMPORT_(nspace, func, type)

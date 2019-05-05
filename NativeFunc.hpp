@@ -267,22 +267,22 @@ namespace pawn_natives
 //   {};
 //   
 // Which means nothing.
-#define PAWN_NATIVE_DEFN(nspace, func, type) PAWN_NATIVE_DEFN_(nspace, func, type)
+#define PAWN_NATIVE_DEFN(nspace, func, params) PAWN_NATIVE_DEFN_(nspace, func, params)
 
-#define PAWN_NATIVE_DEFN_(nspace, func, type) \
+#define PAWN_NATIVE_DEFN_(nspace, func, params) \
 	Native_##func func;                                                         \
 	                                                                            \
 	template <>														            \
-	PAWN_NATIVE__RETURN(type)                                                   \
+	PAWN_NATIVE__RETURN(params)                                                 \
 	    Native_##func::                                                         \
-	    Do(PAWN_NATIVE__PARAMETERS(type)) const;                                \
+	    Do(PAWN_NATIVE__PARAMETERS(params)) const;                              \
 		                                                                        \
 	template <typename RET, typename ... TS>                                    \
-	RET NATIVE_##func(TS ... args)                                              \
+	typename pawn_natives::ReturnResolver<RET>::type NATIVE_##func(TS ... args) \
 	{                                                                           \
 	    try                                                                     \
 	    {                                                                       \
-	        return func.Do(args ...);                                           \
+	        PAWN_NATIVE__MAYBE_GET_AND_RETURN(params)(func.Do(args ...));       \
 	    }                                                                       \
 	    catch (std::exception & e)                                              \
 	    {                                                                       \
@@ -294,21 +294,23 @@ namespace pawn_natives
 	    {                                                                       \
 	        LOG_NATIVE_ERROR("Unknown exception in _" #func);                   \
 	    }                                                                       \
-	    PAWN_NATIVE__MAYBE_RETURN(type) {};                                     \
+	    PAWN_NATIVE__MAYBE_RETURN(params) {};                                   \
 	}                                                                           \
 	                                                                            \
-	PAWN_NATIVE_EXTERN template PAWN_NATIVE_DLLEXPORT PAWN_NATIVE__RETURN(type) PAWN_NATIVE_API \
-	    NATIVE_##func(PAWN_NATIVE__PARAMETERS(type));                           \
+	PAWN_NATIVE_EXTERN template PAWN_NATIVE_DLLEXPORT                           \
+	typename pawn_natives::ReturnResolver<PAWN_NATIVE__RETURN(params)>::type    \
+	PAWN_NATIVE_API                                                             \
+	    NATIVE_##func<PAWN_NATIVE__RETURN(params)>(PAWN_NATIVE__PARAMETERS(params)); \
 	                                                                            \
 	template <>														            \
-	PAWN_NATIVE__RETURN(type)                                                   \
+	PAWN_NATIVE__RETURN(params)                                                 \
 	    Native_##func::                                                         \
-	    Do(PAWN_NATIVE__PARAMETERS(type)) const
+	    Do(PAWN_NATIVE__PARAMETERS(params)) const
 
 #define PAWN_NATIVE_DECLARE PAWN_NATIVE_DECL
 #define PAWN_NATIVE_DEFINE  PAWN_NATIVE_DEFN
 
-#define PAWN_NATIVE(nspace, func, type) PAWN_NATIVE_DECL_(nspace, func, type); PAWN_NATIVE_DEFN_(nspace, func, type)
+#define PAWN_NATIVE(nspace, func, params) PAWN_NATIVE_DECL_(nspace, func, params); PAWN_NATIVE_DEFN_(nspace, func, params)
 
 #if 0
 
