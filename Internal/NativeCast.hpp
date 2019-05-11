@@ -174,7 +174,7 @@ namespace pawn_natives
 			// Some versions may need to write data back here, but not this one.
 		}
 
-		operator varargs_t const()
+		operator varargs_t()
 		{
 			return &value_;
 		}
@@ -652,5 +652,5 @@ namespace pawn_natives
 
 		static constexpr int Size = 0;
 	};
-};
+}
 
