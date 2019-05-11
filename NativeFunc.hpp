@@ -207,7 +207,7 @@ namespace pawn_natives
 			return 0;
 		}
 	};
-};
+}
 
 // The hooks and calls for each class are always static, because otherwise it
 // would make installing hooks MUCH harder - we would need stubs that could

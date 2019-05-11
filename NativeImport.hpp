@@ -163,7 +163,7 @@ namespace pawn_natives
 			return x.ID();
 		}
 	};
-};
+}
 
 //typedef pawn_natives::IDProvider const & id;
 

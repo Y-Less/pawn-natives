@@ -71,5 +71,5 @@ namespace pawn_natives
 #endif
 		return ret;
 	}
-};
+}
 
