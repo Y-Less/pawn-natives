@@ -66,6 +66,7 @@ namespace pawn_natives
 
 		~NativeHookBase() = default;
 
+		subhook::Hook const & GetHook() const { return hook_; }
 		subhook::Hook & GetHook() { return hook_; }
 
 		AMX * GetAMX() const { return amx_; }
