@@ -412,6 +412,7 @@ namespace pawn_natives
 	{
 		template <class F, typename ... NS>
 		static inline auto Call(F that, AMX * amx, cell * params, size_t prev, NS ... vs)
+			-> decltype(ParamArray<N - 1, TS ...>::Call(that, amx, params, prev + ParamCast<T>::Size, vs ..., ParamCast<T>(amx, params, prev)))
 		{
 			return ParamArray<N - 1, TS ...>::Call(that, amx, params, prev + ParamCast<T>::Size, vs ..., ParamCast<T>(amx, params, prev));
 		}
@@ -422,6 +423,7 @@ namespace pawn_natives
 	{
 		template <class F, typename ... NS>
 		static inline auto Call(F that, AMX * amx, cell * params, size_t prev, NS ... vs)
+			-> decltype(that->Do(vs ...))
 		{
 			return that->Do(vs ...);
 		}
@@ -441,6 +443,7 @@ namespace pawn_natives
 
 		template <class F>
 		static inline auto Call(F that, AMX * amx, cell * params)
+			-> decltype(ParamArray<sizeof... (TS) + 1, T, TS ...>::Call(that, amx, params, 1))
 		{
 			return ParamArray<sizeof... (TS) + 1, T, TS ...>::Call(that, amx, params, 1);
 		}
@@ -456,6 +459,7 @@ namespace pawn_natives
 
 		template <class F>
 		static inline auto Call(F that, AMX *, cell *)
+			-> decltype(that->Do())
 		{
 			return that->Do();
 		}
