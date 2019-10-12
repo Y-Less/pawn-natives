@@ -270,15 +270,17 @@ namespace pawn_natives
 #define PAWN_NATIVE_DEFN_(nspace, func, params) \
 	Native_##func func;                                                         \
 	                                                                            \
+	template <>                                                                 \
 	cell AMX_NATIVE_CALL Native_##func::Call(AMX * amx, cell * args)            \
 	{                                                                           \
 	    return func.CallDoOuter(amx, args);                                     \
 	}                                                                           \
 	                                                                            \
+	template <>                                                                 \
 	PAWN_NATIVE__RETURN(params)                                                 \
 	    Native_##func::                                                         \
 	    Do(PAWN_NATIVE__PARAMETERS(params)) const;                              \
-		                                                                        \
+	                                                                            \
 	template <typename RET, typename ... TS>                                    \
 	typename pawn_natives::ReturnResolver<RET>::type NATIVE_##func(TS ... args) \
 	{                                                                           \
@@ -304,6 +306,7 @@ namespace pawn_natives
 	PAWN_NATIVE_API                                                             \
 	    NATIVE_##func<PAWN_NATIVE__RETURN(params)>(PAWN_NATIVE__PARAMETERS(params)); \
 	                                                                            \
+	template <>                                                                 \
 	PAWN_NATIVE__RETURN(params)                                                 \
 	    Native_##func::                                                         \
 	    Do(PAWN_NATIVE__PARAMETERS(params)) const
