@@ -220,11 +220,9 @@ namespace pawn_natives
 // use the common `IsEnabled` method, so re-export it.
 #define PAWN_NATIVE_DECL(nspace, func, type) PAWN_NATIVE_DECL_(nspace, func, type)
 
-#define PAWN_NATIVE_DECL_(nspace, func, type) \
+#define PAWN_NATIVE_DECL_(nspace, func, params) \
 	template <typename F>                                                       \
 	class Native_##func##_ {};                                                  \
-	                                                                            \
-	using Native_##func = Native_##func##_<type>;                               \
 	                                                                            \
 	template <typename RET, typename ... TS>                                    \
 	class Native_##func##_<RET(TS ...)> :                                       \
@@ -239,15 +237,14 @@ namespace pawn_natives
 	                                                                            \
 	    RET Do(TS ...) const override;                                          \
 	                                                                            \
-	    static Native_##func##_<RET(TS ...)>                                    \
-	        Instance;                                                           \
-	                                                                            \
 	private:                                                                    \
-	    static cell AMX_NATIVE_CALL Call(AMX * amx, cell * params)              \
-	    {                                                                       \
-	        return Instance.CallDoOuter(amx, params);                           \
-	    }                                                                       \
-	}
+	    static cell AMX_NATIVE_CALL Call(AMX * amx, cell * args);               \
+	};                                                                          \
+	                                                                            \
+	template class Native_##func##_<params>;                                    \
+	using Native_##func = Native_##func##_<params>;                             \
+	                                                                            \
+	extern Native_##func func
 
 //	    using namespace ::pawn_natives::detail;
 //	    RET Do(typename UnDI<TS>::type_t ...) const override;
@@ -271,7 +268,12 @@ namespace pawn_natives
 #define PAWN_NATIVE_DEFN(nspace, func, params) PAWN_NATIVE_DEFN_(nspace, func, params)
 
 #define PAWN_NATIVE_DEFN_(nspace, func, params) \
-	Native_##func Native_##func::Instance;                                      \
+	Native_##func func;                                                         \
+	                                                                            \
+	cell AMX_NATIVE_CALL Native_##func::Call(AMX * amx, cell * args)            \
+	{                                                                           \
+	    return func.CallDoOuter(amx, args);                                     \
+	}                                                                           \
 	                                                                            \
 	PAWN_NATIVE__RETURN(params)                                                 \
 	    Native_##func::                                                         \
@@ -282,7 +284,7 @@ namespace pawn_natives
 	{                                                                           \
 	    try                                                                     \
 	    {                                                                       \
-	        return PAWN_NATIVE__MAYBE_GET(params)(Native_##func##_<RET(TS ...)>::Instance.Do(args ...)); \
+	        return PAWN_NATIVE__MAYBE_GET(params)(func.Do(args ...));           \
 	    }                                                                       \
 	    catch (std::exception & e)                                              \
 	    {                                                                       \
