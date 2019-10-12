@@ -226,8 +226,6 @@ namespace pawn_natives
 	                                                                            \
 	using Native_##func = Native_##func##_<type>;                               \
 	                                                                            \
-	extern Native_##func func;													\
-	                                                                            \
 	template <typename RET, typename ... TS>                                    \
 	class Native_##func##_<RET(TS ...)> :                                       \
 	    public pawn_natives::NativeFunc<RET, TS ...>                            \
@@ -241,10 +239,13 @@ namespace pawn_natives
 	                                                                            \
 	    RET Do(TS ...) const override;                                          \
 	                                                                            \
+	    static Native_##func##_<RET(TS ...)>                                    \
+	        Instance;                                                           \
+	                                                                            \
 	private:                                                                    \
 	    static cell AMX_NATIVE_CALL Call(AMX * amx, cell * params)              \
 	    {                                                                       \
-	        return ::func.CallDoOuter(amx, params);                             \
+	        return Instance.CallDoOuter(amx, params);                           \
 	    }                                                                       \
 	}
 
@@ -270,9 +271,8 @@ namespace pawn_natives
 #define PAWN_NATIVE_DEFN(nspace, func, params) PAWN_NATIVE_DEFN_(nspace, func, params)
 
 #define PAWN_NATIVE_DEFN_(nspace, func, params) \
-	Native_##func func;                                                         \
+	Native_##func Native_##func::Instance;                                      \
 	                                                                            \
-	template <>														            \
 	PAWN_NATIVE__RETURN(params)                                                 \
 	    Native_##func::                                                         \
 	    Do(PAWN_NATIVE__PARAMETERS(params)) const;                              \
@@ -282,7 +282,7 @@ namespace pawn_natives
 	{                                                                           \
 	    try                                                                     \
 	    {                                                                       \
-	        return PAWN_NATIVE__MAYBE_GET(params)(func.Do(args ...));           \
+	        return PAWN_NATIVE__MAYBE_GET(params)(Native_##func##_<RET(TS ...)>::Instance.Do(args ...)); \
 	    }                                                                       \
 	    catch (std::exception & e)                                              \
 	    {                                                                       \
@@ -302,7 +302,6 @@ namespace pawn_natives
 	PAWN_NATIVE_API                                                             \
 	    NATIVE_##func<PAWN_NATIVE__RETURN(params)>(PAWN_NATIVE__PARAMETERS(params)); \
 	                                                                            \
-	template <>														            \
 	PAWN_NATIVE__RETURN(params)                                                 \
 	    Native_##func::                                                         \
 	    Do(PAWN_NATIVE__PARAMETERS(params)) const
