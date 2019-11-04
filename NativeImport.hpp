@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 #include <amx/amx.h>
+#include <limits>
 
 #if defined __cplusplus
 	#define PAWN_NATIVE_EXTERN extern "C"
@@ -186,24 +187,35 @@ namespace pawn_natives
 #define PAWN_NATIVE__WITHOUT_RETURN_void(...)     __VA_ARGS__
 #define PAWN_NATIVE__WITHOUT_RETURN_cell(...)     __VA_ARGS__
 #define PAWN_NATIVE__WITHOUT_RETURN_id(...)       __VA_ARGS__
- 
+
+#define PAWN_NATIVE__DEFAULT_RETURN_size_t(...)   return 0
+#define PAWN_NATIVE__DEFAULT_RETURN_unsigned(...) return 0U
+#define PAWN_NATIVE__DEFAULT_RETURN_int(...)      return 0
+#define PAWN_NATIVE__DEFAULT_RETURN_float(...)    return std::numeric_limits<float>::quiet_NaN()
+#define PAWN_NATIVE__DEFAULT_RETURN_bool(...)     return false
+#define PAWN_NATIVE__DEFAULT_RETURN_void(...)     return
+#define PAWN_NATIVE__DEFAULT_RETURN_cell(...)     return std::numeric_limits<cell>::(min)()
+#define PAWN_NATIVE__DEFAULT_RETURN_id(...)       return 0
+
 #define PAWN_NATIVE__MAYBE_RETURN_size_t(...)   return
 #define PAWN_NATIVE__MAYBE_RETURN_unsigned(...) return
 #define PAWN_NATIVE__MAYBE_RETURN_int(...)      return
 #define PAWN_NATIVE__MAYBE_RETURN_float(...)    return
 #define PAWN_NATIVE__MAYBE_RETURN_bool(...)     return
-#define PAWN_NATIVE__MAYBE_RETURN_void(...)  
+#define PAWN_NATIVE__MAYBE_RETURN_void(...)     PAWN_NATIVE__THEN_RETURN
 #define PAWN_NATIVE__MAYBE_RETURN_cell(...)     return
 #define PAWN_NATIVE__MAYBE_RETURN_id(...)       return
 
-#define PAWN_NATIVE__MAYBE_GET_size_t(...)   pawn_natives::ReturnResolver<RET>::Get
-#define PAWN_NATIVE__MAYBE_GET_unsigned(...) pawn_natives::ReturnResolver<RET>::Get
-#define PAWN_NATIVE__MAYBE_GET_int(...)      pawn_natives::ReturnResolver<RET>::Get
-#define PAWN_NATIVE__MAYBE_GET_float(...)    pawn_natives::ReturnResolver<RET>::Get
-#define PAWN_NATIVE__MAYBE_GET_bool(...)     pawn_natives::ReturnResolver<RET>::Get
-#define PAWN_NATIVE__MAYBE_GET_void(...)
-#define PAWN_NATIVE__MAYBE_GET_cell(...)     pawn_natives::ReturnResolver<RET>::Get
-#define PAWN_NATIVE__MAYBE_GET_id(...)       pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__GET_RETURN_size_t(...)   return pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__GET_RETURN_unsigned(...) return pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__GET_RETURN_int(...)      return pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__GET_RETURN_float(...)    return pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__GET_RETURN_bool(...)     return pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__GET_RETURN_void(...)     PAWN_NATIVE__THEN_RETURN
+#define PAWN_NATIVE__GET_RETURN_cell(...)     return pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__GET_RETURN_id(...)       return pawn_natives::ReturnResolver<RET>::Get
+
+#define PAWN_NATIVE__THEN_RETURN(...)        __VA_ARGS__; return
 
 #ifdef _MSC_VER
 	#define PAWN_NATIVE__NUM_ARGS(...)  PAWN_NATIVE__NUM_ARGS_(PAWN_NATIVE__NUM_ARGS_MSVC(__VA_ARGS__))
@@ -309,7 +321,8 @@ namespace pawn_natives
 
 #define PAWN_NATIVE__RETURN(params) PAWN_NATIVE__WITHOUT_PARAMS_##params
 #define PAWN_NATIVE__MAYBE_RETURN(params) PAWN_NATIVE__MAYBE_RETURN_##params
-#define PAWN_NATIVE__MAYBE_GET(params) PAWN_NATIVE__MAYBE_GET_##params
+#define PAWN_NATIVE__DEFAULT_RETURN(params) PAWN_NATIVE__DEFAULT_RETURN_##params
+#define PAWN_NATIVE__GET_RETURN(params) PAWN_NATIVE__GET_RETURN_##params
 
 // Import a native from another plugin.
 #define PAWN_IMPORT(nspace, func, type) PAWN_IMPORT_(nspace, func, type)
@@ -322,8 +335,7 @@ namespace pawn_natives
 	    inline PAWN_NATIVE__RETURN(type)                                                               \
 	        func(PAWN_NATIVE__PARAMETERS(type))                                                        \
 	    {                                                                                              \
-	        PAWN_NATIVE__MAYBE_RETURN(type)                                                            \
-	            PAWN_NATIVE_##nspace##_##func(PAWN_NATIVE__CALLING(type));                             \
+	        PAWN_NATIVE__MAYBE_RETURN(type)(PAWN_NATIVE_##nspace##_##func(PAWN_NATIVE__CALLING(type)));\
 	    }                                                                                              \
 	}
 

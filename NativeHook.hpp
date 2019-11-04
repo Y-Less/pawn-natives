@@ -603,6 +603,7 @@ namespace pawn_natives
 // normal users getting in to that data.  However, we do want them to be able to
 // use the common `IsEnabled` method, so re-export it.
 #define PAWN_HOOK_DECL(nspace, func, type) PAWN_HOOK_DECL_(nspace, func, type)
+
 #define PAWN_HOOK_DECL_(nspace, func, type) \
 	PAWN_NATIVE_EXPORT PAWN_NATIVE__RETURN(type) PAWN_NATIVE_API                \
 	    PAWN_NATIVE_##nspace##_##func(PAWN_NATIVE__NAMED(type));                \
@@ -633,22 +634,9 @@ namespace pawn_natives
 	}
 
 // We can't pass exceptions to another module easily, so just don't...
-// 
-// I quite like this:
-//   
-//   PAWN_NATIVE__MAYBE_RETURN(type) {};
-//   
-// If there is a return type, it will compile as:
-//   
-//   return {};
-//   
-// Which means "return default value" in new C++ versions.  If there is no
-// return type (void), it will compile as:
-//   
-//   {};
-//   
-// Which means nothing.
+
 #define PAWN_HOOK_DEFN(nspace, func, type) PAWN_HOOK_DEFN_(nspace, func, type)
+
 #define PAWN_HOOK_DEFN_(nspace, func, type) \
 	nspace::Native_##nspace##_##func nspace::func;                              \
 	                                                                            \
@@ -663,8 +651,7 @@ namespace pawn_natives
 	{                                                                           \
 	    try                                                                     \
 	    {                                                                       \
-	        PAWN_NATIVE__MAYBE_RETURN(type)                                     \
-	            ::nspace::func(PAWN_NATIVE__CALLING(type));                     \
+	        PAWN_NATIVE__MAYBE_RETURN(type)(::nspace::func(PAWN_NATIVE__CALLING(type))); \
 	    }                                                                       \
 	    catch (std::exception & e)                                              \
 	    {                                                                       \
@@ -679,7 +666,7 @@ namespace pawn_natives
 	    }                                                                       \
 	    if (!nspace::func.Recursing())                                          \
 	        nspace::func.Recursing();                                           \
-	    PAWN_NATIVE__MAYBE_RETURN(type) {};                                     \
+	    PAWN_NATIVE__DEFAULT_RETURN(type);                                      \
 	}                                                                           \
 	                                                                            \
 	PAWN_NATIVE__RETURN(type)                                                   \

@@ -246,25 +246,8 @@ namespace pawn_natives
 	                                                                            \
 	extern Native_##func func
 
-//	    using namespace ::pawn_natives::detail;
-//	    RET Do(typename UnDI<TS>::type_t ...) const override;
-
 // We can't pass exceptions to another module easily, so just don't...
-// 
-// I quite like this:
-//   
-//   PAWN_NATIVE__MAYBE_RETURN(type) {};
-//   
-// If there is a return type, it will compile as:
-//   
-//   return {};
-//   
-// Which means "return default value" in new C++ versions.  If there is no
-// return type (void), it will compile as:
-//   
-//   {};
-//   
-// Which means nothing.
+
 #define PAWN_NATIVE_DEFN(nspace, func, params) PAWN_NATIVE_DEFN_(nspace, func, params)
 
 #define PAWN_NATIVE_DEFN_(nspace, func, params) \
@@ -286,7 +269,7 @@ namespace pawn_natives
 	{                                                                           \
 	    try                                                                     \
 	    {                                                                       \
-	        return PAWN_NATIVE__MAYBE_GET(params)(func.Do(args ...));           \
+	        PAWN_NATIVE__GET_RETURN(params)(func.Do(args ...));                 \
 	    }                                                                       \
 	    catch (std::exception & e)                                              \
 	    {                                                                       \
@@ -298,7 +281,7 @@ namespace pawn_natives
 	    {                                                                       \
 	        LOG_NATIVE_ERROR("Unknown exception in _" #func);                   \
 	    }                                                                       \
-	    PAWN_NATIVE__MAYBE_RETURN(params) {};                                   \
+	    PAWN_NATIVE__DEFAULT_RETURN(params);                                    \
 	}                                                                           \
 	                                                                            \
 	PAWN_NATIVE_EXTERN template PAWN_NATIVE_DLLEXPORT                           \
