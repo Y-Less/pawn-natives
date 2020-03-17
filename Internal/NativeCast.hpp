@@ -54,9 +54,95 @@ private:
 // This is in the global namespace, not the pawn_natives namespace.  It
 // completely extends the class as transparently as I can make it.
 template <typename T, size_t N>
-struct ARG : public T
+class ARG
 {
+public:
+	// implicit cons
+	ARG(T that)
+		:
+		that_(that)
+	{
+	}
 
+	T operator*()
+	{
+		return that_;
+	}
+
+	T* operator->()
+	{
+		return &that_;
+	}
+
+	T const operator*() const
+	{
+		return that_;
+	}
+
+	T const* operator->() const
+	{
+		return &that_;
+	}
+
+	operator T ()
+	{
+		return that_;
+	}
+
+	operator T const () const
+	{
+		return that_;
+	}
+
+private:
+	T that_;
+};
+
+// This is in the global namespace, not the pawn_natives namespace.  It
+// completely extends the class as transparently as I can make it.
+template <typename T, size_t N>
+class ARG<T &, N>
+{
+public:
+	// implicit cons
+	ARG(T & that)
+		:
+		that_(that)
+	{
+	}
+
+	T & operator*()
+	{
+		return that_;
+	}
+
+	T* operator->()
+	{
+		return &that_;
+	}
+
+	T const & operator*() const
+	{
+		return that_;
+	}
+
+	T const* operator->() const
+	{
+		return that_;
+	}
+
+	operator T& ()
+	{
+		return that_;
+	}
+
+	operator T const& () const
+	{
+		return that_;
+	}
+
+private:
+	T& that_;
 };
 
 namespace pawn_natives
@@ -415,13 +501,16 @@ namespace pawn_natives
 				value_ = src;
 			}
 			else
+			{
 				value_.clear();
+				addr_ = nullptr;
+			}
 		}
 
 		~ParamCast()
 		{
 			// This is the only version that actually needs to write data back.
-			if (len_)
+			if (addr_)
 				amx_SetString(addr_, value_.c_str(), 0, 0, len_);
 		}
 
@@ -566,6 +655,22 @@ namespace pawn_natives
 		ParamCast() = delete;
 	};
 
+	template <typename T>
+	class ParamCast<DI<T>&>
+	{
+	public:
+		ParamCast(AMX*, cell*, int) = delete;
+		ParamCast() = delete;
+	};
+
+	template <typename T>
+	class ParamCast<DI<T> const&>
+	{
+	public:
+		ParamCast(AMX*, cell*, int) = delete;
+		ParamCast() = delete;
+	};
+
 	//template <typename T>
 	//class ParamCast<DI<T>>
 	//{
@@ -650,7 +755,7 @@ namespace pawn_natives
 
 		operator ARG<T, N>()
 		{
-			return static_cast<ARG<T, N>>((T)*this);
+			return ARG<T, N>((T)*this);
 		}
 
 		static constexpr int Size = 0;
@@ -672,76 +777,34 @@ namespace pawn_natives
 
 		operator ARG<T, N> const()
 		{
-			return static_cast<ARG<T, N> const>((T const)*this);
+			return ARG<T, N>((T const)*this);
 		}
 
 		static constexpr int Size = 0;
 	};
 
 	template <typename T, size_t N>
-	class ParamCast<ARG<T, N> *> : private ParamCast<T *>
+	class ParamCast<ARG<T, N>*>
 	{
 	public:
-		ParamCast(AMX * amx, cell * params, int)
-		:
-			ParamCast<T *>(amx, params, N + 1)
-		{
-		}
-
-		~ParamCast()
-		{
-		}
-
-		operator ARG<T, N> *()
-		{
-			return static_cast<ARG<T, N> *>((T *)*this);
-		}
-
-		static constexpr int Size = 0;
+		ParamCast(AMX*, cell*, int) = delete;
+		ParamCast() = delete;
 	};
 
 	template <typename T, size_t N>
-	class ParamCast<ARG<T, N> &> : private ParamCast<T &>
+	class ParamCast<ARG<T, N>&>
 	{
 	public:
-		ParamCast(AMX * amx, cell * params, int)
-		:
-			ParamCast<T &>(amx, params, N + 1)
-		{
-		}
-
-		~ParamCast()
-		{
-		}
-
-		operator ARG<T, N> &()
-		{
-			return static_cast<ARG<T, N> &>((T &)*this);
-		}
-
-		static constexpr int Size = 0;
+		ParamCast(AMX*, cell*, int) = delete;
+		ParamCast() = delete;
 	};
 
 	template <typename T, size_t N>
-	class ParamCast<ARG<T, N> const *> : private ParamCast<T const *>
+	class ParamCast<ARG<T, N> const&>
 	{
 	public:
-		ParamCast(AMX * amx, cell * params, int)
-		:
-			ParamCast<T const *>(amx, params, N + 1)
-		{
-		}
-
-		~ParamCast()
-		{
-		}
-
-		operator ARG<T, N> const *()
-		{
-			return static_cast<ARG<T, N> const *>((T const *)*this);
-		}
-
-		static constexpr int Size = 0;
+		ParamCast(AMX*, cell*, int) = delete;
+		ParamCast() = delete;
 	};
 }
 
