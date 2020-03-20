@@ -345,7 +345,7 @@ namespace pawn_natives
 	};
 
 	template <typename T>
-	class ParamCast<T &>
+	class ParamCast<std::shared_ptr<T>>
 	{
 	public:
 		ParamCast(AMX * amx, cell * params, int idx)
@@ -361,7 +361,7 @@ namespace pawn_natives
 			// are done directly in to AMX memory.
 		}
 
-		operator T &()
+		operator std::shared_ptr<T>()
 		{
 			return value_;
 		}
@@ -369,7 +369,7 @@ namespace pawn_natives
 		static constexpr int Size = 1;
 
 	private:
-		T &
+		std::shared_ptr<T>
 			value_;
 	};
 
