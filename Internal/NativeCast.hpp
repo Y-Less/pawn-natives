@@ -12,44 +12,49 @@ class DI
 {
 public:
 	// implicit cons
-		DI(T & that)
+		DI(std::shared_ptr<T> that)
 	:
 		that_(that)
 	{
 	}
 
-	T & operator*()
+	T * operator->() const
 	{
-		return that_;
+		return that_.get();
 	}
 
-	T * operator->()
+	T & operator*()
 	{
-		return &that_;
+		return *that_;
+	}
+
+	T * const operator->()
+	{
+		return that_.get();
 	}
 
 	T const & operator*() const
 	{
-		return that_;
+		return *that_;
 	}
 
-	T const * operator->() const
-	{
-		return &that_;
-	}
-
-	operator T &()
+	operator std::shared_ptr<T>()
 	{
 		return that_;
 	}
 
-	operator T const &() const
+	operator T & ()
 	{
-		return that_;
+		return *that_;
+	}
+
+	operator T const & () const
+	{
+		return *that_;
 	}
 
 private:
-	T & that_;
+	std::shared_ptr<T> that_;
 };
 
 // This is in the global namespace, not the pawn_natives namespace.  It
