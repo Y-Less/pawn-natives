@@ -501,10 +501,16 @@ namespace pawn_natives
 			if (len_)
 			{
 				amx_GetAddr(amx, params[idx], &addr_);
-				char *
-					src = (char *)alloca(len_);
+#ifdef _WIN32
+				char * src = (char *)_malloca(len_);
 				amx_GetString(src, addr_, 0, len_);
 				value_ = src;
+				_freea(src);
+#else
+				char * src = (char *)alloca(len_);
+				amx_GetString(src, addr_, 0, len_);
+				value_ = src;
+#endif
 			}
 			else
 			{
@@ -555,10 +561,16 @@ namespace pawn_natives
 			amx_StrLen(addr, &len);
 			if (len)
 			{
-				char *
-					src = (char *)alloca(len + 1);
+#ifdef _WIN32
+				char * src = (char *)_malloca(len + 1);
 				amx_GetString(src, addr, 0, len + 1);
 				value_ = src;
+				_freea(src);
+#else
+				char * src = (char *)alloca(len + 1);
+				amx_GetString(src, addr, 0, len + 1);
+				value_ = src;
+#endif
 			}
 			else
 				value_.clear();
