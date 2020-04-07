@@ -129,7 +129,6 @@ namespace pawn_natives
 		~NativeFunc() = default;
 
 	private:
-
 		cell CallDoInner(AMX * amx, cell * params)
 		{
 			RET
@@ -157,7 +156,7 @@ namespace pawn_natives
 		cell CallDoInner(AMX * amx, cell * params)
 		{
 			ParamData<TS ...>::Call(this, amx, params);
-			return 0;
+			return 1;
 		}
 	};
 
@@ -204,7 +203,7 @@ namespace pawn_natives
 		cell CallDoInner(AMX * amx, cell * params)
 		{
 			ParamData<>::Call(this, amx, params);
-			return 0;
+			return 1;
 		}
 	};
 }
