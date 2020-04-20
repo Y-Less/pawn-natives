@@ -10,331 +10,203 @@
 
 namespace pawn_natives
 {
-int AmxLoad(AMX * amx);
+	int AmxLoad(AMX * amx);
 
-class NativeFuncBase
-{
-public:
-	void Init()
+	class NativeFuncBase
 	{
-		// Install this as a native.
-		//Install(NULL);
-	}
-
-protected:
-	NativeFuncBase(unsigned int count, char const * const name, AMX_NATIVE native)
-	:
-		count_(count * sizeof (cell)),
-		name_(name),
-		native_(native),
-		amx_(0),
-		params_(0)
-	{
-		if (!all_)
-			all_ = new std::list<NativeFuncBase *>();
-		if (all_)
-			all_->push_back(this);
-	}
-		
-	~NativeFuncBase() = default;
-
-	AMX * GetAMX() const { return amx_; }
-	cell * GetParams() const { return params_; }
-		
-	cell CallDoOuter(AMX * amx, cell * params)
-	{
-		cell
-			ret = 0;
-		if (amx && params)
+	public:
+		void Init()
 		{
-			// Check that there are enough parameters.
-			amx_ = amx;
-			params_ = params;
-			try
+			// Install this as a native.
+			//Install(NULL);
+		}
+
+	protected:
+		NativeFuncBase(unsigned int count, char const * const name, AMX_NATIVE native)
+		:
+			count_(count * sizeof (cell)),
+			name_(name),
+			native_(native),
+			amx_(0),
+			params_(0)
+		{
+			if (!all_)
+				all_ = new std::list<NativeFuncBase *>();
+			if (all_)
+				all_->push_back(this);
+		}
+		
+		~NativeFuncBase() = default;
+
+		AMX * GetAMX() const { return amx_; }
+		cell * GetParams() const { return params_; }
+		
+		cell CallDoOuter(AMX * amx, cell * params)
+		{
+			cell
+				ret = 0;
+			if (amx && params)
 			{
-				if (count_ > (unsigned int)params[0])
-					throw std::invalid_argument("Insufficient arguments.");
-				ret = this->CallDoInner(amx, params);
-			}
-			catch (ParamCastFailure const &)
-			{
-				// Acceptable failure (lookup failed etc.)
-			}
-			catch (std::exception const & e)
-			{
-				char
-					msg[1024];
-				sprintf(msg, "Exception in %s: \"%s\"", name_, e.what());
-				LOG_NATIVE_ERROR(msg);
-			}
-			catch (...)
-			{
-				char
-					msg[1024];
-				sprintf(msg, "Unknown exception in in %s", name_);
-				LOG_NATIVE_ERROR(msg);
+				// Check that there are enough parameters.
+				amx_ = amx;
+				params_ = params;
+				try
+				{
+					if (count_ > (unsigned int)params[0])
+						throw std::invalid_argument("Insufficient arguments.");
+					ret = this->CallDoInner(amx, params);
+				}
+				catch (ParamCastFailure const &)
+				{
+					// Acceptable failure (lookup failed etc.)
+				}
+				catch (std::exception const & e)
+				{
+					char
+						msg[1024];
+					sprintf(msg, "Exception in %s: \"%s\"", name_, e.what());
+					LOG_NATIVE_ERROR(msg);
+				}
+				catch (...)
+				{
+					char
+						msg[1024];
+					sprintf(msg, "Unknown exception in in %s", name_);
+					LOG_NATIVE_ERROR(msg);
+					params_ = 0;
+					amx_ = 0;
+					throw;
+				}
 				params_ = 0;
 				amx_ = 0;
-				throw;
 			}
-			params_ = 0;
-			amx_ = 0;
+			return (cell)ret;
 		}
-		return (cell)ret;
-	}
 
-private:
-	virtual cell CallDoInner(AMX *, cell *) = 0;
+	private:
+		virtual cell CallDoInner(AMX *, cell *) = 0;
 
-	friend int AmxLoad(AMX * amx);
+		friend int AmxLoad(AMX * amx);
 
-	NativeFuncBase() = delete;
-	NativeFuncBase(NativeFuncBase const &) = delete;
-	NativeFuncBase(NativeFuncBase const &&) = delete;
-	NativeFuncBase const & operator=(NativeFuncBase const &) const = delete;
-	NativeFuncBase const & operator=(NativeFuncBase const &&) const = delete;
+		NativeFuncBase() = delete;
+		NativeFuncBase(NativeFuncBase const &) = delete;
+		NativeFuncBase(NativeFuncBase const &&) = delete;
+		NativeFuncBase const & operator=(NativeFuncBase const &) const = delete;
+		NativeFuncBase const & operator=(NativeFuncBase const &&) const = delete;
 
-	unsigned int
-		count_;
+		unsigned int
+			count_;
 
-	char const * const
-		name_;
+		char const * const
+			name_;
 
-	AMX_NATIVE const
-		native_;
+		AMX_NATIVE const
+			native_;
 
-	AMX *
-		amx_;
+		AMX *
+			amx_;
 
-	cell *
-		params_;
+		cell *
+			params_;
 
-	static std::list<NativeFuncBase *> *
-		all_;
-};
+		static std::list<NativeFuncBase *> *
+			all_;
+	};
 
-template <typename F>
-class NativeFunc : protected NativeFuncBase
-{
-};
-
-template <typename RET, typename ... TS>
-class NativeFunc<RET(TS...)> : protected NativeFuncBase
-{
-public:
-	inline RET operator()(TS ... args)
+	template <typename RET, typename ... TS>
+	class NativeFunc : protected NativeFuncBase
 	{
-		return Do(args ...);
-	}
+	public:
+		inline RET operator()(TS ... args)
+		{
+			return Do(args ...);
+		}
 
-	virtual RET Do(TS ...) const = 0;
+		virtual RET Do(TS ...) const = 0;
 
-protected:
-	NativeFunc(char const * const name, AMX_NATIVE native) : NativeFuncBase(ParamData<TS ...>::Sum(), name, native) {}
-	~NativeFunc() = default;
+	protected:
+		NativeFunc(char const * const name, AMX_NATIVE native) : NativeFuncBase(ParamData<TS ...>::Sum(), name, native) {}
+		~NativeFunc() = default;
 
-private:
+	private:
 
-	cell CallDoInner(AMX * amx, cell * params)
+		cell CallDoInner(AMX * amx, cell * params)
+		{
+			RET
+				ret = ParamData<TS ...>::Call(this, amx, params);
+			return *(cell *)&ret;
+		}
+	};
+
+	template <typename ... TS>
+	class NativeFunc<void, TS ...> : protected NativeFuncBase
 	{
-		RET
-			ret = ParamData<TS ...>::Call(this, amx, params);
-		return *(cell *)&ret;
-	}
-};
+	public:
+		inline void operator()(TS ... args)
+		{
+			Do(args ...);
+		}
 
-template <typename ... TS>
-class NativeFunc<void(TS ...)> : protected NativeFuncBase
-{
-public:
-	inline void operator()(TS ... args)
+		virtual void Do(TS ...) const = 0;
+
+	protected:
+		NativeFunc(char const * const name, AMX_NATIVE native) : NativeFuncBase(ParamData<TS ...>::Sum(), name, native) {}
+		~NativeFunc() = default;
+
+	private:
+		cell CallDoInner(AMX * amx, cell * params)
+		{
+			ParamData<TS ...>::Call(this, amx, params);
+			return 0;
+		}
+	};
+
+	template <typename RET>
+	class NativeFunc<RET> : protected NativeFuncBase
 	{
-		Do(args ...);
-	}
+	public:
+		inline RET operator()()
+		{
+			return Do();
+		}
 
-	virtual void Do(TS ...) const = 0;
+		virtual RET Do() const = 0;
 
-protected:
-	NativeFunc(char const * const name, AMX_NATIVE native) : NativeFuncBase(ParamData<TS ...>::Sum(), name, native) {}
-	~NativeFunc() = default;
+	protected:
+		NativeFunc(char const * const name, AMX_NATIVE native) : NativeFuncBase(0, name, native) {}
+		~NativeFunc() = default;
 
-private:
-	cell CallDoInner(AMX * amx, cell * params)
+	private:
+		cell CallDoInner(AMX * amx, cell * params)
+		{
+			RET
+				ret = ParamData<>::Call(this, amx, params);
+			return *(cell *)&ret;
+		}
+	};
+
+	template <>
+	class NativeFunc<void> : protected NativeFuncBase
 	{
-		ParamData<TS ...>::Call(this, amx, params);
-		return 0;
-	}
-};
+	public:
+		inline void operator()()
+		{
+			Do();
+		}
 
-template <typename RET>
-class NativeFunc<RET()> : protected NativeFuncBase
-{
-public:
-	inline RET operator()()
-	{
-		return Do();
-	}
+		virtual void Do() const = 0;
 
-	virtual RET Do() const = 0;
+	protected:
+		NativeFunc(char const * const name, AMX_NATIVE native) : NativeFuncBase(0, name, native) {}
+		~NativeFunc() = default;
 
-protected:
-	NativeFunc(char const * const name, AMX_NATIVE native) : NativeFuncBase(0, name, native) {}
-	~NativeFunc() = default;
-
-private:
-	cell CallDoInner(AMX * amx, cell * params)
-	{
-		RET
-			ret = ParamData<>::Call(this, amx, params);
-		return *(cell *)&ret;
-	}
-};
-
-template <>
-class NativeFunc<void()> : protected NativeFuncBase
-{
-public:
-	inline void operator()()
-	{
-		Do();
-	}
-
-	virtual void Do() const = 0;
-
-protected:
-	NativeFunc(char const * const name, AMX_NATIVE native) : NativeFuncBase(0, name, native) {}
-	~NativeFunc() = default;
-
-private:
-	cell CallDoInner(AMX * amx, cell * params)
-	{
-		ParamData<>::Call(this, amx, params);
-		return 0;
-	}
-};
-
-template <typename RET, typename C, typename ... TS>
-struct NativeType
-{
-	using type = RET(C:: *)(TS...);
-};
-
-template <typename T, typename T::type P>
-struct NativeProxy
-{
-	using type = typename T::type;
-	static constexpr typename T::type value = P;
-};
-
-template <typename F, F P, typename RET, typename C, typename ... TS>
-class NativeMethod : protected NativeFuncBase
-{
-};
-
-template <typename T>
-struct ParamProxy
-{
-};
-
-template <typename RET, typename C, typename ... TS>
-struct ParamProxy<RET(C:: *)(TS...)> : ParamData<C, TS...>
-{
-};
-
-template <typename M>
-class NativeMethod<M, P> : protected NativeFuncBase
-{
-public:
-	inline RET operator()(TS ... args)
-	{
-		return Do(args ...);
-	}
-
-	virtual RET Do(TS ...) const = 0;
-
-protected:
-	NativeMethod(char const * const name, AMX_NATIVE native) : NativeFuncBase(ParamProxy<M>::Sum(), name, native) {}
-	~NativeMethod() = default;
-
-private:
-
-	cell CallDoInner(AMX * amx, cell * params)
-	{
-		RET
-			ret = ParamProxy<M>::Call(this, amx, params);
-		return *(cell *)&ret;
-	}
-};
-
-template <typename ... TS>
-class NativeMethod<void(TS ...)> : protected NativeFuncBase
-{
-public:
-	inline void operator()(TS ... args)
-	{
-		Do(args ...);
-	}
-
-	virtual void Do(TS ...) const = 0;
-
-protected:
-	NativeMethod(char const * const name, AMX_NATIVE native) : NativeFuncBase(ParamData<TS ...>::Sum(), name, native) {}
-	~NativeMethod() = default;
-
-private:
-	cell CallDoInner(AMX * amx, cell * params)
-	{
-		ParamData<TS ...>::Call(this, amx, params);
-		return 0;
-	}
-};
-
-template <typename RET>
-class NativeMethod<RET()> : protected NativeFuncBase
-{
-public:
-	inline RET operator()()
-	{
-		return Do();
-	}
-
-	virtual RET Do() const = 0;
-
-protected:
-	NativeMethod(char const * const name, AMX_NATIVE native) : NativeFuncBase(0, name, native) {}
-	~NativeMethod() = default;
-
-private:
-	cell CallDoInner(AMX * amx, cell * params)
-	{
-		RET
-			ret = ParamData<>::Call(this, amx, params);
-		return *(cell *)&ret;
-	}
-};
-
-template <>
-class NativeMethod<void()> : protected NativeFuncBase
-{
-public:
-	inline void operator()()
-	{
-		Do();
-	}
-
-	virtual void Do() const = 0;
-
-protected:
-	NativeMethod(char const * const name, AMX_NATIVE native) : NativeFuncBase(0, name, native) {}
-	~NativeMethod() = default;
-
-private:
-	cell CallDoInner(AMX * amx, cell * params)
-	{
-		ParamData<>::Call(this, amx, params);
-		return 0;
-	}
-};
+	private:
+		cell CallDoInner(AMX * amx, cell * params)
+		{
+			ParamData<>::Call(this, amx, params);
+			return 0;
+		}
+	};
 }
 
 // The hooks and calls for each class are always static, because otherwise it
@@ -349,78 +221,78 @@ private:
 #define PAWN_NATIVE_DECL(nspace, func, type) PAWN_NATIVE_DECL_(nspace, func, type)
 
 #define PAWN_NATIVE_DECL_(nspace, func, params) \
-template <typename F>                                                           \
-class Native_##func##_ {};                                                      \
+	template <typename F>                                                       \
+	class Native_##func##_ {};                                                  \
 	                                                                            \
-template <typename RET, typename ... TS>                                        \
-class Native_##func##_<RET(TS ...)> :                                           \
-	public pawn_natives::NativeFunc<RET(TS ...)>                                \
-{                                                                               \
-public:                                                                         \
-	Native_##func##_()                                                          \
-	:                                                                           \
-	    pawn_natives::NativeFunc<RET(TS ...)>(#func, (AMX_NATIVE)&Call)         \
+	template <typename RET, typename ... TS>                                    \
+	class Native_##func##_<RET(TS ...)> :                                       \
+	    public pawn_natives::NativeFunc<RET, TS ...>                            \
 	{                                                                           \
-	}                                                                           \
+	public:                                                                     \
+	    Native_##func##_()                                                      \
+	    :                                                                       \
+	        pawn_natives::NativeFunc<RET, TS ...>(#func, (AMX_NATIVE)&Call)     \
+	    {                                                                       \
+	    }                                                                       \
 	                                                                            \
-	RET Do(TS ...) const override;                                              \
+	    RET Do(TS ...) const override;                                          \
 	                                                                            \
-private:                                                                        \
-	static cell AMX_NATIVE_CALL Call(AMX * amx, cell * args);                   \
-};                                                                              \
+	private:                                                                    \
+	    static cell AMX_NATIVE_CALL Call(AMX * amx, cell * args);               \
+	};                                                                          \
 	                                                                            \
-template class Native_##func##_<params>;                                        \
-using Native_##func = Native_##func##_<params>;                                 \
+	template class Native_##func##_<params>;                                    \
+	using Native_##func = Native_##func##_<params>;                             \
 	                                                                            \
-extern Native_##func func
+	extern Native_##func func
 
 // We can't pass exceptions to another module easily, so just don't...
 
 #define PAWN_NATIVE_DEFN(nspace, func, params) PAWN_NATIVE_DEFN_(nspace, func, params)
 
 #define PAWN_NATIVE_DEFN_(nspace, func, params) \
-Native_##func func;                                                             \
+	Native_##func func;                                                         \
 	                                                                            \
-template <>                                                                     \
-cell AMX_NATIVE_CALL Native_##func::Call(AMX * amx, cell * args)                \
-{                                                                               \
-	return func.CallDoOuter(amx, args);                                         \
-}                                                                               \
-	                                                                            \
-template <>                                                                     \
-PAWN_NATIVE__RETURN(params)                                                     \
-	Native_##func::                                                             \
-	Do(PAWN_NATIVE__PARAMETERS(params)) const;                                  \
-	                                                                            \
-template <typename RET, typename ... TS>                                        \
-typename pawn_natives::ReturnResolver<RET>::type NATIVE_##func(TS ... args)     \
-{                                                                               \
-	try                                                                         \
+	template <>                                                                 \
+	cell AMX_NATIVE_CALL Native_##func::Call(AMX * amx, cell * args)            \
 	{                                                                           \
-	    PAWN_NATIVE__GET_RETURN(params)(func.Do(args ...));                     \
+	    return func.CallDoOuter(amx, args);                                     \
 	}                                                                           \
-	catch (std::exception & e)                                                  \
-	{                                                                           \
-	    char msg[1024];                                                         \
-	    sprintf(msg, "Exception in _" #func ": \"%s\"", e.what());              \
-	    LOG_NATIVE_ERROR(msg);                                                  \
-	}                                                                           \
-	catch (...)                                                                 \
-	{                                                                           \
-	    LOG_NATIVE_ERROR("Unknown exception in _" #func);                       \
-	}                                                                           \
-	PAWN_NATIVE__DEFAULT_RETURN(params);                                        \
-}                                                                               \
 	                                                                            \
-PAWN_NATIVE_EXTERN template PAWN_NATIVE_DLLEXPORT                               \
-typename pawn_natives::ReturnResolver<PAWN_NATIVE__RETURN(params)>::type        \
-PAWN_NATIVE_API                                                                 \
-	NATIVE_##func<PAWN_NATIVE__RETURN(params)>(PAWN_NATIVE__PARAMETERS(params));\
+	template <>                                                                 \
+	PAWN_NATIVE__RETURN(params)                                                 \
+	    Native_##func::                                                         \
+	    Do(PAWN_NATIVE__PARAMETERS(params)) const;                              \
 	                                                                            \
-template <>                                                                     \
-PAWN_NATIVE__RETURN(params)                                                     \
-	Native_##func::                                                             \
-	Do(PAWN_NATIVE__PARAMETERS(params)) const
+	template <typename RET, typename ... TS>                                    \
+	typename pawn_natives::ReturnResolver<RET>::type NATIVE_##func(TS ... args) \
+	{                                                                           \
+	    try                                                                     \
+	    {                                                                       \
+	        PAWN_NATIVE__GET_RETURN(params)(func.Do(args ...));                 \
+	    }                                                                       \
+	    catch (std::exception & e)                                              \
+	    {                                                                       \
+	        char msg[1024];                                                     \
+	        sprintf(msg, "Exception in _" #func ": \"%s\"", e.what());          \
+	        LOG_NATIVE_ERROR(msg);                                              \
+	    }                                                                       \
+	    catch (...)                                                             \
+	    {                                                                       \
+	        LOG_NATIVE_ERROR("Unknown exception in _" #func);                   \
+	    }                                                                       \
+	    PAWN_NATIVE__DEFAULT_RETURN(params);                                    \
+	}                                                                           \
+	                                                                            \
+	PAWN_NATIVE_EXTERN template PAWN_NATIVE_DLLEXPORT                           \
+	typename pawn_natives::ReturnResolver<PAWN_NATIVE__RETURN(params)>::type    \
+	PAWN_NATIVE_API                                                             \
+	    NATIVE_##func<PAWN_NATIVE__RETURN(params)>(PAWN_NATIVE__PARAMETERS(params)); \
+	                                                                            \
+	template <>                                                                 \
+	PAWN_NATIVE__RETURN(params)                                                 \
+	    Native_##func::                                                         \
+	    Do(PAWN_NATIVE__PARAMETERS(params)) const
 
 #define PAWN_NATIVE_DECLARE PAWN_NATIVE_DECL
 #define PAWN_NATIVE_DEFINE  PAWN_NATIVE_DEFN
@@ -437,9 +309,9 @@ PAWN_NATIVE_DECL(SetPlayerPosAndAngle, bool(int playerid, float x, float y, floa
 // In your code:
 PAWN_NATIVE_DEFN(SetPlayerPosAndAngle, bool(int playerid, float x, float y, float z, float a))
 {
-// Implementation here...
-SetPlayerPos(playerid, x, y, z);
-return SetPlayerFacingAngle(playerid, a);
+	// Implementation here...
+	SetPlayerPos(playerid, x, y, z);
+	return SetPlayerFacingAngle(playerid, a);
 }
 
 #endif
