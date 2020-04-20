@@ -212,6 +212,129 @@ private:
 		return 0;
 	}
 };
+
+template <typename RET, typename C, typename ... TS>
+struct NativeType
+{
+	using type = RET(C:: *)(TS...);
+};
+
+template <typename T, typename T::type P>
+struct NativeProxy
+{
+	using type = typename T::type;
+	static constexpr typename T::type value = P;
+};
+
+template <typename F, F P, typename RET, typename C, typename ... TS>
+class NativeMethod : protected NativeFuncBase
+{
+};
+
+template <typename T>
+struct ParamProxy
+{
+};
+
+template <typename RET, typename C, typename ... TS>
+struct ParamProxy<RET(C:: *)(TS...)> : ParamData<C, TS...>
+{
+};
+
+template <typename M>
+class NativeMethod<M, P> : protected NativeFuncBase
+{
+public:
+	inline RET operator()(TS ... args)
+	{
+		return Do(args ...);
+	}
+
+	virtual RET Do(TS ...) const = 0;
+
+protected:
+	NativeMethod(char const * const name, AMX_NATIVE native) : NativeFuncBase(ParamProxy<M>::Sum(), name, native) {}
+	~NativeMethod() = default;
+
+private:
+
+	cell CallDoInner(AMX * amx, cell * params)
+	{
+		RET
+			ret = ParamProxy<M>::Call(this, amx, params);
+		return *(cell *)&ret;
+	}
+};
+
+template <typename ... TS>
+class NativeMethod<void(TS ...)> : protected NativeFuncBase
+{
+public:
+	inline void operator()(TS ... args)
+	{
+		Do(args ...);
+	}
+
+	virtual void Do(TS ...) const = 0;
+
+protected:
+	NativeMethod(char const * const name, AMX_NATIVE native) : NativeFuncBase(ParamData<TS ...>::Sum(), name, native) {}
+	~NativeMethod() = default;
+
+private:
+	cell CallDoInner(AMX * amx, cell * params)
+	{
+		ParamData<TS ...>::Call(this, amx, params);
+		return 0;
+	}
+};
+
+template <typename RET>
+class NativeMethod<RET()> : protected NativeFuncBase
+{
+public:
+	inline RET operator()()
+	{
+		return Do();
+	}
+
+	virtual RET Do() const = 0;
+
+protected:
+	NativeMethod(char const * const name, AMX_NATIVE native) : NativeFuncBase(0, name, native) {}
+	~NativeMethod() = default;
+
+private:
+	cell CallDoInner(AMX * amx, cell * params)
+	{
+		RET
+			ret = ParamData<>::Call(this, amx, params);
+		return *(cell *)&ret;
+	}
+};
+
+template <>
+class NativeMethod<void()> : protected NativeFuncBase
+{
+public:
+	inline void operator()()
+	{
+		Do();
+	}
+
+	virtual void Do() const = 0;
+
+protected:
+	NativeMethod(char const * const name, AMX_NATIVE native) : NativeFuncBase(0, name, native) {}
+	~NativeMethod() = default;
+
+private:
+	cell CallDoInner(AMX * amx, cell * params)
+	{
+		ParamData<>::Call(this, amx, params);
+		return 0;
+	}
+};
 }
 
 // The hooks and calls for each class are always static, because otherwise it
