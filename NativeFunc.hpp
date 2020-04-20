@@ -218,9 +218,9 @@ namespace pawn_natives
 // The inheritance from `NativeFuncBase` is protected, because we don't want
 // normal users getting in to that data.  However, we do want them to be able to
 // use the common `IsEnabled` method, so re-export it.
-#define PAWN_NATIVE_DECL(nspace, func, type) PAWN_NATIVE_DECL_(nspace, func, type)
+#define PAWN_NATIVE_DECL(object, func, type) PAWN_NATIVE_DECL_(object, func, type)
 
-#define PAWN_NATIVE_DECL_(nspace, func, params) \
+#define PAWN_NATIVE_DECL_(object, func, params) \
 	template <typename F>                                                       \
 	class Native_##func##_ {};                                                  \
 	                                                                            \
@@ -248,9 +248,9 @@ namespace pawn_natives
 
 // We can't pass exceptions to another module easily, so just don't...
 
-#define PAWN_NATIVE_DEFN(nspace, func, params) PAWN_NATIVE_DEFN_(nspace, func, params)
+#define PAWN_NATIVE_DEFN(object, func, params) PAWN_NATIVE_DEFN_(object, func, params)
 
-#define PAWN_NATIVE_DEFN_(nspace, func, params) \
+#define PAWN_NATIVE_DEFN_(object, func, params) \
 	Native_##func func;                                                         \
 	                                                                            \
 	template <>                                                                 \
@@ -297,7 +297,89 @@ namespace pawn_natives
 #define PAWN_NATIVE_DECLARE PAWN_NATIVE_DECL
 #define PAWN_NATIVE_DEFINE  PAWN_NATIVE_DEFN
 
-#define PAWN_NATIVE(nspace, func, params) PAWN_NATIVE_DECL_(nspace, func, params); PAWN_NATIVE_DEFN_(nspace, func, params)
+#define PAWN_NATIVE(object, func, params) PAWN_NATIVE_DECL_(object, func, params); PAWN_NATIVE_DEFN_(object, func, params)
+
+
+#define PAWN_METHOD_DECL(object, func, type) PAWN_METHOD_DECL_(object, func, type)
+
+#define PAWN_METHOD_DECL_(object, func, params) \
+	template <typename F>                                                       \
+	class Native_##func##_ {};                                                  \
+	                                                                            \
+	template <typename RET, class C, typename ... TS>                           \
+	class Native_##func##_<RET(C::*)(TS ...)> :                                 \
+	    public pawn_natives::NativeFunc<RET, std::shared_ptr<C>, TS ...>        \
+	{                                                                           \
+	public:                                                                     \
+	    Native_##func##_()                                                      \
+	    :                                                                       \
+	        pawn_natives::NativeFunc<RET, std::shared_ptr<C>, TS ...>(#func, (AMX_NATIVE)&Call) \
+	    {                                                                       \
+	    }                                                                       \
+	                                                                            \
+	    RET Do(std::shared_ptr<C> c, TS... args) const override					\
+        {																		\
+			PAWN_NATIVE__GET_RETURN(params)((*c.*P)(std::forward<TS>(args)...));\
+        }																		\
+	                                                                            \
+	private:                                                                    \
+	    static cell AMX_NATIVE_CALL Call(AMX * amx, cell * args);               \
+	    using method_type = RET(C::*)(TS ...);                                  \
+	    static constexpr method_type P = (method_type)(&object::func);          \
+	};                                                                          \
+	                                                                            \
+	template class Native_##func##_<PAWN_NATIVE__RETURN(params)(object::*)(PAWN_NATIVE__PARAMETERS(params))>;        \
+	using Native_##func = Native_##func##_<PAWN_NATIVE__RETURN(params)(object::*)(PAWN_NATIVE__PARAMETERS(params))>; \
+	                                                                            \
+	extern Native_##func func
+
+#define PAWN_NATIVE_ADD_POINTER(object, ...) std::shared_ptr<object> c, ##__VA_ARGS__
+
+// We can't pass exceptions to another module easily, so just don't...
+
+#define PAWN_METHOD_DEFN(object, func, params) PAWN_METHOD_DEFN_(object, func, params)
+
+#define PAWN_METHOD_DEFN_(object, func, params) \
+	Native_##func func;                                                         \
+	                                                                            \
+	template <>                                                                 \
+	cell AMX_NATIVE_CALL Native_##func::Call(AMX * amx, cell * args)            \
+	{                                                                           \
+	    return func.CallDoOuter(amx, args);                                     \
+	}                                                                           \
+	                                                                            \
+	template <typename RET, class C, typename ... TS>                           \
+	typename pawn_natives::ReturnResolver<RET>::type NATIVE_##func(std::shared_ptr<C> c, TS ... args) \
+	{                                                                           \
+	    try                                                                     \
+	    {                                                                       \
+	        PAWN_NATIVE__GET_RETURN(params)(func.Do(c, std::forward<TS>(args)...)); \
+	    }                                                                       \
+	    catch (std::exception & e)                                              \
+	    {                                                                       \
+	        char msg[1024];                                                     \
+	        sprintf(msg, "Exception in _" #func ": \"%s\"", e.what());          \
+	        LOG_NATIVE_ERROR(msg);                                              \
+	    }                                                                       \
+	    catch (...)                                                             \
+	    {                                                                       \
+	        LOG_NATIVE_ERROR("Unknown exception in _" #func);                   \
+	    }                                                                       \
+	    PAWN_NATIVE__DEFAULT_RETURN(params);                                    \
+	}                                                                           \
+	                                                                            \
+	PAWN_NATIVE_EXTERN template PAWN_NATIVE_DLLEXPORT                           \
+	typename pawn_natives::ReturnResolver<PAWN_NATIVE__RETURN(params)>::type    \
+	PAWN_NATIVE_API                                                             \
+	    NATIVE_##func<PAWN_NATIVE__RETURN(params)>(DEFER(PAWN_NATIVE_ADD_POINTER)(object, PAWN_NATIVE__PARAMETERS(params))); \
+	                                                                            \
+	PAWN_NATIVE__RETURN(params)                                                 \
+	    object::func(PAWN_NATIVE__PARAMETERS(params))
+
+#define PAWN_METHOD_DECLARE PAWN_METHOD_DECL
+#define PAWN_METHOD_DEFINE  PAWN_METHOD_DEFN
+
+#define PAWN_METHOD(object, func, params) PAWN_METHOD_DECL_(object, func, params); PAWN_METHOD_DEFN_(object, func, params)
 
 #if 0
 
