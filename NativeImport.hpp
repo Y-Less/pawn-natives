@@ -178,6 +178,14 @@ namespace pawn_natives
 #define PAWN_NATIVE__WITHOUT_PARAMS_void(...)     void
 #define PAWN_NATIVE__WITHOUT_PARAMS_cell(...)     cell
 #define PAWN_NATIVE__WITHOUT_PARAMS_id(...)       id
+#define PAWN_NATIVE__WITHOUT_PARAMS_int8_t(...)   int8_t
+#define PAWN_NATIVE__WITHOUT_PARAMS_int16_t(...)  int16_t
+#define PAWN_NATIVE__WITHOUT_PARAMS_int32_t(...)  int32_t
+#define PAWN_NATIVE__WITHOUT_PARAMS_int64_t(...)  int64_t
+#define PAWN_NATIVE__WITHOUT_PARAMS_uint8_t(...)  uint8_t
+#define PAWN_NATIVE__WITHOUT_PARAMS_uint16_t(...) uint16_t
+#define PAWN_NATIVE__WITHOUT_PARAMS_uint32_t(...) uint32_t
+#define PAWN_NATIVE__WITHOUT_PARAMS_uint64_t(...) uint64_t
 
 #define PAWN_NATIVE__WITHOUT_RETURN_size_t(...)   __VA_ARGS__
 #define PAWN_NATIVE__WITHOUT_RETURN_unsigned(...) __VA_ARGS__
@@ -187,6 +195,14 @@ namespace pawn_natives
 #define PAWN_NATIVE__WITHOUT_RETURN_void(...)     __VA_ARGS__
 #define PAWN_NATIVE__WITHOUT_RETURN_cell(...)     __VA_ARGS__
 #define PAWN_NATIVE__WITHOUT_RETURN_id(...)       __VA_ARGS__
+#define PAWN_NATIVE__WITHOUT_RETURN_int8_t(...)   __VA_ARGS__
+#define PAWN_NATIVE__WITHOUT_RETURN_int16_t(...)  __VA_ARGS__
+#define PAWN_NATIVE__WITHOUT_RETURN_int32_t(...)  __VA_ARGS__
+#define PAWN_NATIVE__WITHOUT_RETURN_int64_t(...)  __VA_ARGS__
+#define PAWN_NATIVE__WITHOUT_RETURN_uint8_t(...)  __VA_ARGS__
+#define PAWN_NATIVE__WITHOUT_RETURN_uint16_t(...) __VA_ARGS__
+#define PAWN_NATIVE__WITHOUT_RETURN_uint32_t(...) __VA_ARGS__
+#define PAWN_NATIVE__WITHOUT_RETURN_uint64_t(...) __VA_ARGS__
 
 #define PAWN_NATIVE__DEFAULT_RETURN_size_t(...)   return 0
 #define PAWN_NATIVE__DEFAULT_RETURN_unsigned(...) return 0U
@@ -196,15 +212,31 @@ namespace pawn_natives
 #define PAWN_NATIVE__DEFAULT_RETURN_void(...)     return
 #define PAWN_NATIVE__DEFAULT_RETURN_cell(...)     return std::numeric_limits<cell>::(min)()
 #define PAWN_NATIVE__DEFAULT_RETURN_id(...)       return 0
+#define PAWN_NATIVE__DEFAULT_RETURN_int8_t(...)   return 0
+#define PAWN_NATIVE__DEFAULT_RETURN_int16_t(...)  return 0
+#define PAWN_NATIVE__DEFAULT_RETURN_int32_t(...)  return 0
+#define PAWN_NATIVE__DEFAULT_RETURN_int64_t(...)  return 0
+#define PAWN_NATIVE__DEFAULT_RETURN_uint8_t(...)  return 0U
+#define PAWN_NATIVE__DEFAULT_RETURN_uint16_t(...) return 0U
+#define PAWN_NATIVE__DEFAULT_RETURN_uint32_t(...) return 0U
+#define PAWN_NATIVE__DEFAULT_RETURN_uint64_t(...) return 0U
 
-#define PAWN_NATIVE__MAYBE_RETURN_size_t(...)   return
-#define PAWN_NATIVE__MAYBE_RETURN_unsigned(...) return
-#define PAWN_NATIVE__MAYBE_RETURN_int(...)      return
-#define PAWN_NATIVE__MAYBE_RETURN_float(...)    return
-#define PAWN_NATIVE__MAYBE_RETURN_bool(...)     return
-#define PAWN_NATIVE__MAYBE_RETURN_void(...)     PAWN_NATIVE__THEN_RETURN
-#define PAWN_NATIVE__MAYBE_RETURN_cell(...)     return
-#define PAWN_NATIVE__MAYBE_RETURN_id(...)       return
+#define PAWN_NATIVE__MAYBE_RETURN_size_t(...)     return
+#define PAWN_NATIVE__MAYBE_RETURN_unsigned(...)   return
+#define PAWN_NATIVE__MAYBE_RETURN_int(...)        return
+#define PAWN_NATIVE__MAYBE_RETURN_float(...)      return
+#define PAWN_NATIVE__MAYBE_RETURN_bool(...)       return
+#define PAWN_NATIVE__MAYBE_RETURN_void(...)       PAWN_NATIVE__THEN_RETURN
+#define PAWN_NATIVE__MAYBE_RETURN_cell(...)       return
+#define PAWN_NATIVE__MAYBE_RETURN_id(...)         return
+#define PAWN_NATIVE__MAYBE_RETURN_int8_t(...)     return
+#define PAWN_NATIVE__MAYBE_RETURN_int16_t(...)    return
+#define PAWN_NATIVE__MAYBE_RETURN_int32_t(...)    return
+#define PAWN_NATIVE__MAYBE_RETURN_int64_t(...)    return
+#define PAWN_NATIVE__MAYBE_RETURN_uint8_t(...)    return
+#define PAWN_NATIVE__MAYBE_RETURN_uint16_t(...)   return
+#define PAWN_NATIVE__MAYBE_RETURN_uint32_t(...)   return
+#define PAWN_NATIVE__MAYBE_RETURN_uint64_t(...)   return
 
 #define PAWN_NATIVE__GET_RETURN_size_t(...)   return pawn_natives::ReturnResolver<RET>::Get
 #define PAWN_NATIVE__GET_RETURN_unsigned(...) return pawn_natives::ReturnResolver<RET>::Get
@@ -214,6 +246,14 @@ namespace pawn_natives
 #define PAWN_NATIVE__GET_RETURN_void(...)     PAWN_NATIVE__THEN_RETURN
 #define PAWN_NATIVE__GET_RETURN_cell(...)     return pawn_natives::ReturnResolver<RET>::Get
 #define PAWN_NATIVE__GET_RETURN_id(...)       return pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__GET_RETURN_int8_t(...)   return pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__GET_RETURN_int16_t(...)  return pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__GET_RETURN_int32_t(...)  return pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__GET_RETURN_int64_t(...)  return pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__GET_RETURN_uint8_t(...)  return pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__GET_RETURN_uint16_t(...) return pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__GET_RETURN_uint32_t(...) return pawn_natives::ReturnResolver<RET>::Get
+#define PAWN_NATIVE__GET_RETURN_uint64_t(...) return pawn_natives::ReturnResolver<RET>::Get
 
 #define PAWN_NATIVE__THEN_RETURN(...)        __VA_ARGS__; return
 
