@@ -313,7 +313,7 @@ namespace pawn_natives
 	public:                                                                     \
 	    Native_##func##_()                                                      \
 	    :                                                                       \
-	        pawn_natives::NativeFunc<RET, std::shared_ptr<C>, TS ...>(#object"_"#func, (AMX_NATIVE)&Call) \
+	        pawn_natives::NativeFunc<RET, std::shared_ptr<C>, TS ...>(#object "_" #func, (AMX_NATIVE)&Call) \
 	    {                                                                       \
 	    }                                                                       \
 	                                                                            \
@@ -328,7 +328,7 @@ namespace pawn_natives
 	    static constexpr method_type P = (method_type)(&object::func);          \
 	};                                                                          \
 	                                                                            \
-	template class Native_##object##_##func##_<PAWN_NATIVE__RETURN(params)(object::*)(PAWN_NATIVE__PARAMETERS(params))>;        \
+	template class Native_##object##_##func##_<PAWN_NATIVE__RETURN(params)(object::*)(PAWN_NATIVE__PARAMETERS(params))>; \
 	using Native_##object##_##func = Native_##object##_##func##_<PAWN_NATIVE__RETURN(params)(object::*)(PAWN_NATIVE__PARAMETERS(params))>; \
 	                                                                            \
 	extern Native_##object##_##func func
@@ -358,12 +358,12 @@ namespace pawn_natives
 	    catch (std::exception & e)                                              \
 	    {                                                                       \
 	        char msg[1024];                                                     \
-	        sprintf(msg, "Exception in _" #func ": \"%s\"", e.what());          \
+	        sprintf(msg, "Exception in _" #object "_" #func ": \"%s\"", e.what()); \
 	        LOG_NATIVE_ERROR(msg);                                              \
 	    }                                                                       \
 	    catch (...)                                                             \
 	    {                                                                       \
-	        LOG_NATIVE_ERROR("Unknown exception in _" #func);                   \
+	        LOG_NATIVE_ERROR("Unknown exception in _" #object "_" #func);       \
 	    }                                                                       \
 	    PAWN_NATIVE__DEFAULT_RETURN(params);                                    \
 	}                                                                           \
