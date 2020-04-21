@@ -304,16 +304,16 @@ namespace pawn_natives
 
 #define PAWN_METHOD_DECL_(object, func, params) \
 	template <typename F>                                                       \
-	class Native_##func##_ {};                                                  \
+	class Native_##object##_##func##_ {};                                       \
 	                                                                            \
 	template <typename RET, class C, typename ... TS>                           \
-	class Native_##func##_<RET(C::*)(TS ...)> :                                 \
+	class Native_##object##_##func##_<RET(C::*)(TS ...)> :                      \
 	    public pawn_natives::NativeFunc<RET, std::shared_ptr<C>, TS ...>        \
 	{                                                                           \
 	public:                                                                     \
 	    Native_##func##_()                                                      \
 	    :                                                                       \
-	        pawn_natives::NativeFunc<RET, std::shared_ptr<C>, TS ...>(#func, (AMX_NATIVE)&Call) \
+	        pawn_natives::NativeFunc<RET, std::shared_ptr<C>, TS ...>(#object"_"#func, (AMX_NATIVE)&Call) \
 	    {                                                                       \
 	    }                                                                       \
 	                                                                            \
@@ -328,10 +328,10 @@ namespace pawn_natives
 	    static constexpr method_type P = (method_type)(&object::func);          \
 	};                                                                          \
 	                                                                            \
-	template class Native_##func##_<PAWN_NATIVE__RETURN(params)(object::*)(PAWN_NATIVE__PARAMETERS(params))>;        \
-	using Native_##func = Native_##func##_<PAWN_NATIVE__RETURN(params)(object::*)(PAWN_NATIVE__PARAMETERS(params))>; \
+	template class Native_##object##_##func##_<PAWN_NATIVE__RETURN(params)(object::*)(PAWN_NATIVE__PARAMETERS(params))>;        \
+	using Native_##object##_##func = Native_##object##_##func##_<PAWN_NATIVE__RETURN(params)(object::*)(PAWN_NATIVE__PARAMETERS(params))>; \
 	                                                                            \
-	extern Native_##func func
+	extern Native_##object##_##func func
 
 #define PAWN_NATIVE_ADD_POINTER(object, ...) std::shared_ptr<object> c, ##__VA_ARGS__
 
@@ -340,16 +340,16 @@ namespace pawn_natives
 #define PAWN_METHOD_DEFN(object, func, params) PAWN_METHOD_DEFN_(object, func, params)
 
 #define PAWN_METHOD_DEFN_(object, func, params) \
-	Native_##func func;                                                         \
+	Native_##object##_##func func;                                              \
 	                                                                            \
 	template <>                                                                 \
-	cell AMX_NATIVE_CALL Native_##func::Call(AMX * amx, cell * args)            \
+	cell AMX_NATIVE_CALL Native_##object##_##func::Call(AMX * amx, cell * args) \
 	{                                                                           \
 	    return func.CallDoOuter(amx, args);                                     \
 	}                                                                           \
 	                                                                            \
 	template <typename RET, class C, typename ... TS>                           \
-	typename pawn_natives::ReturnResolver<RET>::type NATIVE_##func(std::shared_ptr<C> c, TS ... args) \
+	typename pawn_natives::ReturnResolver<RET>::type NATIVE_##object##_##func(std::shared_ptr<C> c, TS ... args) \
 	{                                                                           \
 	    try                                                                     \
 	    {                                                                       \
@@ -371,7 +371,7 @@ namespace pawn_natives
 	PAWN_NATIVE_EXTERN template PAWN_NATIVE_DLLEXPORT                           \
 	typename pawn_natives::ReturnResolver<PAWN_NATIVE__RETURN(params)>::type    \
 	PAWN_NATIVE_API                                                             \
-	    NATIVE_##func<PAWN_NATIVE__RETURN(params)>(DEFER(PAWN_NATIVE_ADD_POINTER)(object, PAWN_NATIVE__PARAMETERS(params))); \
+	    NATIVE_##object##_##func<PAWN_NATIVE__RETURN(params)>(DEFER(PAWN_NATIVE_ADD_POINTER)(object, PAWN_NATIVE__PARAMETERS(params))); \
 	                                                                            \
 	PAWN_NATIVE__RETURN(params)                                                 \
 	    object::func(PAWN_NATIVE__PARAMETERS(params))
