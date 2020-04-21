@@ -311,7 +311,7 @@ namespace pawn_natives
 	    public pawn_natives::NativeFunc<RET, std::shared_ptr<C>, TS ...>        \
 	{                                                                           \
 	public:                                                                     \
-	    Native_##func##_()                                                      \
+	    Native_##object##_##func##_()                                           \
 	    :                                                                       \
 	        pawn_natives::NativeFunc<RET, std::shared_ptr<C>, TS ...>(#object "_" #func, (AMX_NATIVE)&Call) \
 	    {                                                                       \
