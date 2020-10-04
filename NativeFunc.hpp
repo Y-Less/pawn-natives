@@ -117,9 +117,9 @@ namespace pawn_natives
 	class NativeFunc : protected NativeFuncBase
 	{
 	public:
-		inline RET operator()(TS ... args)
+		inline RET operator()(TS &&... args)
 		{
-			return Do(args ...);
+			return Do(std::forward<TS>(args)...);
 		}
 
 		virtual RET Do(TS ...) const = 0;
@@ -142,9 +142,9 @@ namespace pawn_natives
 	class NativeFunc<void, TS ...> : protected NativeFuncBase
 	{
 	public:
-		inline void operator()(TS ... args)
+		inline void operator()(TS &&... args)
 		{
-			Do(args ...);
+			Do(std::forward<TS>(args)...);
 		}
 
 		virtual void Do(TS ...) const = 0;
