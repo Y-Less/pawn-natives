@@ -211,6 +211,9 @@ namespace pawn_natives
 		{
 		}
 
+		ParamCast(ParamCast<T> const &) = delete;
+		ParamCast(ParamCast<T> &&) = delete;
+
 		~ParamCast()
 		{
 			// Some versions may need to write data back here, but not this one.
@@ -251,6 +254,9 @@ namespace pawn_natives
 			// Some versions may need to write data back here, but not this one.
 		}
 
+		ParamCast(ParamCast<T const> const &) = delete;
+		ParamCast(ParamCast<T const> &&) = delete;
+
 		operator T const () const
 		{
 			return value_;
@@ -277,6 +283,9 @@ namespace pawn_natives
 		{
 			// Some versions may need to write data back here, but not this one.
 		}
+
+		ParamCast(ParamCast<varargs_t> const &) = delete;
+		ParamCast(ParamCast<varargs_t> &&) = delete;
 
 		operator varargs_t()
 		{
@@ -306,6 +315,9 @@ namespace pawn_natives
 		{
 			// Some versions may need to write data back here, but not this one.
 		}
+
+		ParamCast(ParamCast<varargs_t const> const &) = delete;
+		ParamCast(ParamCast<varargs_t const> &&) = delete;
 
 		operator varargs_t()
 		{
@@ -338,6 +350,9 @@ namespace pawn_natives
 			// are done directly in to AMX memory.
 		}
 
+		ParamCast(ParamCast<T *> const &) = delete;
+		ParamCast(ParamCast<T *> &&) = delete;
+
 		operator T *()
 		{
 			return value_;
@@ -366,6 +381,9 @@ namespace pawn_natives
 			// This one doesn't because we are passing the direct pointer, which means any writes
 			// are done directly in to AMX memory.
 		}
+
+		ParamCast(ParamCast<std::shared_ptr<T>> const &) = delete;
+		ParamCast(ParamCast<std::shared_ptr<T>> &&) = delete;
 
 		operator std::shared_ptr<T>()
 		{
@@ -445,6 +463,9 @@ namespace pawn_natives
 			// Some versions may need to write data back here, but not this one.
 		}
 
+		ParamCast(ParamCast<T const *> const &) = delete;
+		ParamCast(ParamCast<T const *> &&) = delete;
+
 		operator T const *() const
 		{
 			return value_;
@@ -463,6 +484,8 @@ namespace pawn_natives
 	{
 	public:
 		ParamCast(AMX * amx, cell * params, int idx) = delete;
+		ParamCast(ParamCast<char *> const &) = delete;
+		ParamCast(ParamCast<char *> &&) = delete;
 	};
 
 	// Use `string const &`.
@@ -471,6 +494,8 @@ namespace pawn_natives
 	{
 	public:
 		ParamCast(AMX * amx, cell * params, int idx) = delete;
+		ParamCast(ParamCast<char const *> const &) = delete;
+		ParamCast(ParamCast<char const *> &&) = delete;
 	};
 
 	// `string &` doesn't exist any more.  If it is a return value, the convention
@@ -480,6 +505,8 @@ namespace pawn_natives
 	{
 	public:
 		ParamCast(AMX * amx, cell * params, int idx) = delete;
+		ParamCast(ParamCast<std::string &> const &) = delete;
+		ParamCast(ParamCast<std::string &> &&) = delete;
 	};
 
 	template <>
@@ -525,6 +552,9 @@ namespace pawn_natives
 			if (addr_)
 				amx_SetString(addr_, value_.c_str(), 0, 0, len_);
 		}
+
+		ParamCast(ParamCast<std::string *> const &) = delete;
+		ParamCast(ParamCast<std::string *> &&) = delete;
 
 		operator std::string *()
 		{
@@ -581,6 +611,9 @@ namespace pawn_natives
 			// Some versions may need to write data back here, but not this one.
 		}
 
+		ParamCast(ParamCast<std::string const &> const &) = delete;
+		ParamCast(ParamCast<std::string const &> &&) = delete;
+
 		operator std::string const &()
 		{
 			return value_;
@@ -600,10 +633,10 @@ namespace pawn_natives
 	struct ParamArray<N, T, TS ...>
 	{
 		template <class F, typename ... NS>
-		static inline auto Call(F that, AMX * amx, cell * params, size_t prev, NS ... vs)
-			-> decltype(ParamArray<N - 1, TS ...>::Call(that, amx, params, prev + ParamCast<T>::Size, vs ..., ParamCast<T>(amx, params, prev)))
+		static inline auto Call(F that, AMX * amx, cell * params, size_t prev, NS &&... vs)
+			-> decltype(ParamArray<N - 1, TS ...>::Call(that, amx, params, prev + ParamCast<T>::Size, std::forward<NS>(vs)..., ParamCast<T>(amx, params, prev)))
 		{
-			return ParamArray<N - 1, TS ...>::Call(that, amx, params, prev + ParamCast<T>::Size, vs ..., ParamCast<T>(amx, params, prev));
+			return ParamArray<N - 1, TS ...>::Call(that, amx, params, prev + ParamCast<T>::Size, std::forward<NS>(vs)..., ParamCast<T>(amx, params, prev));
 		}
 	};
 
@@ -611,10 +644,10 @@ namespace pawn_natives
 	struct ParamArray<0>
 	{
 		template <class F, typename ... NS>
-		static inline auto Call(F that, AMX * amx, cell * params, size_t prev, NS ... vs)
-			-> decltype(that->Do(vs ...))
+		static inline auto Call(F that, AMX * amx, cell * params, size_t prev, NS &&... vs)
+			-> decltype(that->Do(std::forward<NS>(vs)...))
 		{
-			return that->Do(vs ...);
+			return that->Do(std::forward<NS>(vs)...);
 		}
 	};
 
