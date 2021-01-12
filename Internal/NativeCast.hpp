@@ -744,12 +744,12 @@ namespace pawn_natives
 
 		operator DI<T>()
 		{
-			return DI(ParamInject<T>::Get());
+			return DI<T>(ParamInject<T>::Get());
 		}
 
 		operator DI<T> const() const
 		{
-			return DI(ParamInject<T>::Get());
+			return DI<T>(ParamInject<T>::Get());
 		}
 
 		static constexpr int Size = 0;
@@ -771,7 +771,7 @@ namespace pawn_natives
 
 		operator DI<T> const() const
 		{
-			return DI(ParamInject<T>::Get());
+			return DI<T>(ParamInject<T>::Get());
 		}
 
 		static constexpr int Size = 0;
