@@ -117,12 +117,7 @@ namespace pawn_natives
 	class NativeFunc : protected NativeFuncBase
 	{
 	public:
-		inline RET operator()(TS &&... args)
-		{
-			return Do(std::forward<TS>(args)...);
-		}
-
-		virtual RET Do(TS ...) const = 0;
+		virtual RET operator()(TS ...) const = 0;
 
 	protected:
 		NativeFunc(char const * const name, AMX_NATIVE native) : NativeFuncBase(ParamData<TS ...>::Sum(), name, native) {}
@@ -142,12 +137,7 @@ namespace pawn_natives
 	class NativeFunc<void, TS ...> : protected NativeFuncBase
 	{
 	public:
-		inline void operator()(TS &&... args)
-		{
-			Do(std::forward<TS>(args)...);
-		}
-
-		virtual void Do(TS ...) const = 0;
+		virtual void operator()(TS ...) const = 0;
 
 	protected:
 		NativeFunc(char const * const name, AMX_NATIVE native) : NativeFuncBase(ParamData<TS ...>::Sum(), name, native) {}
@@ -165,12 +155,7 @@ namespace pawn_natives
 	class NativeFunc<RET> : protected NativeFuncBase
 	{
 	public:
-		inline RET operator()()
-		{
-			return Do();
-		}
-
-		virtual RET Do() const = 0;
+		virtual RET operator()() const = 0;
 
 	protected:
 		NativeFunc(char const * const name, AMX_NATIVE native) : NativeFuncBase(0, name, native) {}
@@ -189,12 +174,7 @@ namespace pawn_natives
 	class NativeFunc<void> : protected NativeFuncBase
 	{
 	public:
-		inline void operator()()
-		{
-			Do();
-		}
-
-		virtual void Do() const = 0;
+		virtual void operator()() const = 0;
 
 	protected:
 		NativeFunc(char const * const name, AMX_NATIVE native) : NativeFuncBase(0, name, native) {}
@@ -235,7 +215,7 @@ namespace pawn_natives
 	    {                                                                       \
 	    }                                                                       \
 	                                                                            \
-	    RET Do(TS ...) const override;                                          \
+	    RET operator()(TS ...) const override;                                  \
 	                                                                            \
 	private:                                                                    \
 	    static cell AMX_NATIVE_CALL Call(AMX * amx, cell * args);               \
@@ -262,14 +242,14 @@ namespace pawn_natives
 	template <>                                                                 \
 	PAWN_NATIVE__RETURN(params)                                                 \
 	    Native_##func::                                                         \
-	    Do(PAWN_NATIVE__PARAMETERS(params)) const;                              \
+	    operator()(PAWN_NATIVE__PARAMETERS(params)) const;                      \
 	                                                                            \
 	template <typename RET, typename ... TS>                                    \
 	typename pawn_natives::ReturnResolver<RET>::type NATIVE_##func(TS ... args) \
 	{                                                                           \
 	    try                                                                     \
 	    {                                                                       \
-	        PAWN_NATIVE__GET_RETURN(params)(func.Do(args ...));                 \
+	        PAWN_NATIVE__GET_RETURN(params)(func(args ...));                    \
 	    }                                                                       \
 	    catch (std::exception & e)                                              \
 	    {                                                                       \
@@ -292,7 +272,7 @@ namespace pawn_natives
 	template <>                                                                 \
 	PAWN_NATIVE__RETURN(params)                                                 \
 	    Native_##func::                                                         \
-	    Do(PAWN_NATIVE__PARAMETERS(params)) const
+	    operator()(PAWN_NATIVE__PARAMETERS(params)) const
 
 #define PAWN_NATIVE_DECLARE PAWN_NATIVE_DECL
 #define PAWN_NATIVE_DEFINE  PAWN_NATIVE_DEFN
@@ -317,7 +297,7 @@ namespace pawn_natives
 	    {                                                                       \
 	    }                                                                       \
 	                                                                            \
-	    RET Do(std::shared_ptr<C> c, TS... args) const override					\
+	    RET operator()(std::shared_ptr<C> c, TS... args) const override         \
         {																		\
 			PAWN_NATIVE__GET_RETURN(params)((*c.*P)(std::forward<TS>(args)...));\
         }																		\
@@ -353,7 +333,7 @@ namespace pawn_natives
 	{                                                                           \
 	    try                                                                     \
 	    {                                                                       \
-	        PAWN_NATIVE__GET_RETURN(params)(func.Do(c, std::forward<TS>(args)...)); \
+	        PAWN_NATIVE__GET_RETURN(params)(func(c, std::forward<TS>(args)...));\
 	    }                                                                       \
 	    catch (std::exception & e)                                              \
 	    {                                                                       \

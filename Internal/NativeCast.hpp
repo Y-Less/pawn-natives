@@ -607,9 +607,9 @@ namespace pawn_natives
 	{
 		template <class F, typename ... NS>
 		static inline auto Call(F that, AMX * amx, cell * params, size_t prev, NS &&... vs)
-			-> decltype(that->Do(std::forward<NS>(vs)...))
+			-> decltype((*that)(std::forward<NS>(vs)...))
 		{
-			return that->Do(std::forward<NS>(vs)...);
+			return (*that)(std::forward<NS>(vs)...);
 		}
 	};
 
@@ -643,9 +643,9 @@ namespace pawn_natives
 
 		template <class F>
 		static inline auto Call(F that, AMX *, cell *)
-			-> decltype(that->Do())
+			-> decltype((*that)())
 		{
-			return that->Do();
+			return (*that)();
 		}
 	};
 
