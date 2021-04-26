@@ -8,53 +8,15 @@
 
 // This is in the global namespace, not the pawn_natives namespace.
 template <typename T>
-class DI
+class DI : public std::shared_ptr<T>
 {
 public:
 	// implicit cons
 		DI(std::shared_ptr<T> that)
 	:
-		that_(that)
+		std::shared_ptr<T>(that)
 	{
 	}
-
-	T * operator->() const
-	{
-		return that_.get();
-	}
-
-	T & operator*()
-	{
-		return *that_;
-	}
-
-	T * const operator->()
-	{
-		return that_.get();
-	}
-
-	T const & operator*() const
-	{
-		return *that_;
-	}
-
-	operator std::shared_ptr<T>()
-	{
-		return that_;
-	}
-
-	operator T & ()
-	{
-		return *that_;
-	}
-
-	operator T const & () const
-	{
-		return *that_;
-	}
-
-private:
-	std::shared_ptr<T> that_;
 };
 
 // This is in the global namespace, not the pawn_natives namespace.  It
