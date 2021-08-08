@@ -129,11 +129,11 @@ namespace pawn_natives
 		~NativeFunc() = default;
 
 	private:
-
 		cell CallDoInner(AMX * amx, cell * params)
 		{
 			RET
 				ret = ParamData<TS ...>::Call(this, amx, params);
+			// TODO: static_assert that `sizeof (RET) == sizeof (cell)`.
 			return *(cell *)&ret;
 		}
 	};
@@ -157,7 +157,29 @@ namespace pawn_natives
 		cell CallDoInner(AMX * amx, cell * params)
 		{
 			ParamData<TS ...>::Call(this, amx, params);
-			return 0;
+			return 1;
+		}
+	};
+
+	template <typename ... TS>
+	class NativeFunc<bool, TS ...> : protected NativeFuncBase
+	{
+	public:
+		inline bool operator()(TS ... args)
+		{
+			return Do(args ...);
+		}
+
+		virtual bool Do(TS ...) const = 0;
+
+	protected:
+		NativeFunc(char const * const name, AMX_NATIVE native) : NativeFuncBase(ParamData<TS ...>::Sum(), name, native) {}
+		~NativeFunc() = default;
+
+	private:
+		cell CallDoInner(AMX * amx, cell * params)
+		{
+			return ParamData<TS ...>::Call(this, amx, params) ? 1 : 0;
 		}
 	};
 
@@ -181,6 +203,7 @@ namespace pawn_natives
 		{
 			RET
 				ret = ParamData<>::Call(this, amx, params);
+			// TODO: static_assert that `sizeof (RET) == sizeof (cell)`.
 			return *(cell *)&ret;
 		}
 	};
@@ -204,7 +227,29 @@ namespace pawn_natives
 		cell CallDoInner(AMX * amx, cell * params)
 		{
 			ParamData<>::Call(this, amx, params);
-			return 0;
+			return 1;
+		}
+	};
+
+	template <>
+	class NativeFunc<bool> : protected NativeFuncBase
+	{
+	public:
+		inline bool operator()()
+		{
+			return Do();
+		}
+
+		virtual bool Do() const = 0;
+
+	protected:
+		NativeFunc(char const * const name, AMX_NATIVE native) : NativeFuncBase(0, name, native) {}
+		~NativeFunc() = default;
+
+	private:
+		cell CallDoInner(AMX * amx, cell * params)
+		{
+			return ParamData<>::Call(this, amx, params) ? 1 : 0;
 		}
 	};
 }
